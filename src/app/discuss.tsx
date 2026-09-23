@@ -76,7 +76,7 @@ export default function DiscussScreen() {
                     ? Palette.danger
                     : p.role === 'mrWhite'
                       ? Palette.mrWhite
-                      : Palette.success
+                      : Palette.text
                 }
               />
             ))}

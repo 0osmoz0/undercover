@@ -15,6 +15,11 @@ function roleColor(role: Role): string {
   return Palette.success;
 }
 
+function onRoleColor(role: Role): string {
+  if (role === 'undercover') return Palette.onAccent;
+  return '#111111';
+}
+
 export default function RevealScreen() {
   const { game, winner, continueAfterReveal } = useGame();
   useBlockBack();
@@ -70,7 +75,9 @@ export default function RevealScreen() {
             </Text>
             <Text style={styles.verdict}>est éliminé·e. C’était</Text>
             <View style={[styles.roleBand, { backgroundColor: color }]}>
-              <Text style={styles.role}>{roleLabel(eliminated.role)}</Text>
+              <Text style={[styles.role, { color: onRoleColor(eliminated.role) }]}>
+                {roleLabel(eliminated.role)}
+              </Text>
             </View>
           </View>
           <Text style={styles.hint}>{hint()}</Text>
@@ -131,7 +138,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   role: {
-    color: Palette.text,
     fontSize: Type.title,
     fontWeight: '900',
     letterSpacing: 2,

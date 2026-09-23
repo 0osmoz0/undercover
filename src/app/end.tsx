@@ -15,12 +15,6 @@ function roleColor(role: Role): string {
   return Palette.success;
 }
 
-function winnerTitle(winner: string | null): string {
-  if (winner === 'civilians') return 'Les Civils gagnent';
-  if (winner === 'mrWhite') return 'Mister White gagne';
-  return 'Les Undercover gagnent';
-}
-
 function roleSort(a: Role, b: Role): number {
   const order: Role[] = ['mrWhite', 'undercover', 'civilian'];
   return order.indexOf(a) - order.indexOf(b);
@@ -33,7 +27,7 @@ export default function EndScreen() {
 
   const accent =
     winner === 'civilians'
-      ? Palette.success
+      ? Palette.text
       : winner === 'mrWhite'
         ? Palette.mrWhite
         : Palette.danger;
@@ -47,6 +41,13 @@ export default function EndScreen() {
   const sorted = [...game.players].sort((a, b) =>
     a.role === b.role ? 0 : roleSort(a.role, b.role),
   );
+
+  const title =
+    winner === 'civilians'
+      ? 'Les Civils gagnent'
+      : winner === 'mrWhite'
+        ? 'Mister White gagne'
+        : 'Les Undercover gagnent';
 
   const replay = () => {
     router.dismissTo('/setup');
@@ -72,7 +73,7 @@ export default function EndScreen() {
           Fin de partie · {game.round} manche{game.round > 1 ? 's' : ''}
         </Text>
         <Text style={[styles.title, { color: accent }]} accessibilityRole="header">
-          {winnerTitle(winner)}
+          {title}
         </Text>
         <Text style={styles.winners}>{winners.map((p) => p.name).join(' · ')}</Text>
         {game.mrWhiteGuessCorrect === true ? (
@@ -81,7 +82,7 @@ export default function EndScreen() {
       </View>
 
       <View style={styles.words}>
-        <WordBox label="Mot des Civils" word={game.wordPair.civilian} color={Palette.success} />
+        <WordBox label="Mot des Civils" word={game.wordPair.civilian} color={Palette.text} />
         <WordBox label="Mot Undercover" word={game.wordPair.undercover} color={Palette.danger} />
       </View>
 

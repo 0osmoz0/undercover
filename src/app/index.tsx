@@ -1,9 +1,12 @@
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { PrimaryButton } from '@/components/game/PrimaryButton';
 import { Screen } from '@/components/game/Screen';
 import { Palette, Space, Type } from '@/constants/colors';
+
+const logo = require('../../assets/images/esiee-undercover-logo.png');
 
 export default function HomeScreen() {
   return (
@@ -22,11 +25,13 @@ export default function HomeScreen() {
         </>
       }>
       <View style={styles.hero}>
+        <Image
+          source={logo}
+          style={styles.logo}
+          contentFit="contain"
+          accessibilityLabel="ESIEE Paris Undercover"
+        />
         <Text style={styles.kicker}>Jeu d’ambiance · 3 à 10 joueurs</Text>
-        <Text style={styles.title} accessibilityRole="header">
-          UNDER{'\n'}COVER
-        </Text>
-        <View style={styles.rule} />
         <Text style={styles.subtitle}>
           Un seul téléphone, un mot secret chacun.{'\n'}Démasquez l’intrus avant qu’il ne vous
           démasque.
@@ -41,7 +46,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   hero: {
+    alignItems: 'center',
     gap: Space.md,
+  },
+  logo: {
+    width: '100%',
+    maxWidth: 280,
+    aspectRatio: 500 / 571,
+    marginBottom: Space.sm,
   },
   kicker: {
     color: Palette.accent,
@@ -49,23 +61,13 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 2,
     textTransform: 'uppercase',
-  },
-  title: {
-    color: Palette.text,
-    fontSize: 64,
-    lineHeight: 64,
-    fontWeight: '900',
-    letterSpacing: 4,
-  },
-  rule: {
-    width: 56,
-    height: 4,
-    backgroundColor: Palette.accent,
+    textAlign: 'center',
   },
   subtitle: {
     color: Palette.textMuted,
     fontSize: Type.body,
     lineHeight: 25,
+    textAlign: 'center',
   },
   rulesLink: {
     alignSelf: 'center',

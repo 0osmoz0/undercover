@@ -104,7 +104,7 @@ const pressedStyles = StyleSheet.create({
     borderColor: Palette.accentPressed,
   },
   secondary: {
-    backgroundColor: 'rgba(232, 168, 56, 0.12)',
+    backgroundColor: 'rgba(227, 6, 19, 0.12)',
   },
   ghost: {
     opacity: 0.6,

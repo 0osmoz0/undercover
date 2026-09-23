@@ -4,35 +4,35 @@
     "slug": "undercover",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/esiee-undercover-logo.png",
     "scheme": "undercover",
     "userInterfaceStyle": "automatic",
-    "backgroundColor": "#0F1B2D",
+    "backgroundColor": "#000000",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/images/esiee-undercover-logo.png"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#0F1B2D",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#000000",
+        "foregroundImage": "./assets/images/esiee-undercover-logo.png"
       },
       "predictiveBackGestureEnabled": false
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/esiee-undercover-logo.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#0F1B2D",
+          "backgroundColor": "#000000",
+          "image": "./assets/images/esiee-undercover-logo.png",
+          "imageWidth": 200,
           "android": {
-            "image": "./assets/images/splash-icon.png",
-            "imageWidth": 76
+            "image": "./assets/images/esiee-undercover-logo.png",
+            "imageWidth": 200
           }
         }
       ]
