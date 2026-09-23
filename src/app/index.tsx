@@ -1,98 +1,85 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+import { PrimaryButton } from '@/components/game/PrimaryButton';
+import { Screen } from '@/components/game/Screen';
+import { Palette, Space, Type } from '@/constants/colors';
 
 export default function HomeScreen() {
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
-
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+    <Screen
+      style={styles.content}
+      footer={
+        <>
+          <PrimaryButton label="Nouvelle partie" onPress={() => router.push('/setup')} />
+          <Pressable
+            accessibilityRole="link"
+            onPress={() => router.push('/rules')}
+            hitSlop={10}
+            style={({ pressed }) => [styles.rulesLink, pressed && styles.pressed]}>
+            <Text style={styles.rulesText}>Comment on joue ?</Text>
+          </Pressable>
+        </>
+      }>
+      <View style={styles.hero}>
+        <Text style={styles.kicker}>Jeu d’ambiance · 3 à 10 joueurs</Text>
+        <Text style={styles.title} accessibilityRole="header">
+          UNDER{'\n'}COVER
+        </Text>
+        <View style={styles.rule} />
+        <Text style={styles.subtitle}>
+          Un seul téléphone, un mot secret chacun.{'\n'}Démasquez l’intrus avant qu’il ne vous
+          démasque.
+        </Text>
+      </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  content: {
     justifyContent: 'center',
-    flexDirection: 'row',
   },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
+  hero: {
+    gap: Space.md,
   },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
+  kicker: {
+    color: Palette.accent,
+    fontSize: Type.label,
+    fontWeight: '700',
+    letterSpacing: 2,
     textTransform: 'uppercase',
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+  title: {
+    color: Palette.text,
+    fontSize: 64,
+    lineHeight: 64,
+    fontWeight: '900',
+    letterSpacing: 4,
+  },
+  rule: {
+    width: 56,
+    height: 4,
+    backgroundColor: Palette.accent,
+  },
+  subtitle: {
+    color: Palette.textMuted,
+    fontSize: Type.body,
+    lineHeight: 25,
+  },
+  rulesLink: {
+    alignSelf: 'center',
+    paddingVertical: Space.sm + 2,
+    paddingHorizontal: Space.md,
+  },
+  rulesText: {
+    color: Palette.text,
+    fontSize: 16,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+    textDecorationColor: Palette.accent,
+  },
+  pressed: {
+    opacity: 0.6,
   },
 });
