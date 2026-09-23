@@ -12,7 +12,9 @@ import {
   castVote,
   createGame,
   nextRound,
+  resolveMrWhiteGuess,
   resolveVote,
+  suggestedMrWhiteCount,
   suggestedUndercoverCount,
   type GamePhase,
   type GameState,
@@ -25,16 +27,22 @@ type GameContextValue = {
   phase: GamePhase;
   players: Player[];
   winner: Winner;
-  startGame: (names: string[], undercoverCount?: number) => void;
+  startGame: (
+    names: string[],
+    undercoverCount?: number,
+    mrWhiteCount?: number,
+  ) => void;
   revealWordForCurrent: () => void;
   hideWordAndAdvance: () => void;
   startDiscussion: () => void;
   startVote: () => void;
   submitVote: (voterId: string, targetId: string) => void;
   finishVoting: () => void;
+  submitMrWhiteGuess: (guess: string) => void;
   continueAfterReveal: () => void;
   resetGame: () => void;
   suggestedUndercoverCount: (count: number) => number;
+  suggestedMrWhiteCount: (count: number) => number;
   allVoted: boolean;
 };
 
@@ -44,10 +52,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [game, setGame] = useState<GameState | null>(null);
 
   const startGame = useCallback(
-    (names: string[], undercoverCount?: number) => {
-      const count =
+    (names: string[], undercoverCount?: number, mrWhiteCount?: number) => {
+      const uc =
         undercoverCount ?? suggestedUndercoverCount(names.length);
-      const next = createGame(names, count, wordPairs);
+      const mw = mrWhiteCount ?? suggestedMrWhiteCount(names.length);
+      const next = createGame(names, uc, wordPairs, mw);
       setGame(next);
     },
     [],
@@ -92,6 +101,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const submitMrWhiteGuess = useCallback((guess: string) => {
+    setGame((prev) => {
+      if (!prev || prev.phase !== 'guess') return prev;
+      return resolveMrWhiteGuess(prev, guess);
+    });
+  }, []);
+
   const continueAfterReveal = useCallback(() => {
     setGame((prev) => {
       if (!prev) return prev;
@@ -119,9 +135,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       startVote,
       submitVote,
       finishVoting,
+      submitMrWhiteGuess,
       continueAfterReveal,
       resetGame,
       suggestedUndercoverCount,
+      suggestedMrWhiteCount,
       allVoted: game ? allAliveHaveVoted(game) : false,
     }),
     [
@@ -133,6 +151,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       startVote,
       submitVote,
       finishVoting,
+      submitMrWhiteGuess,
       continueAfterReveal,
       resetGame,
     ],

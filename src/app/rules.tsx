@@ -8,23 +8,27 @@ import { Palette, Space, Type } from '@/constants/colors';
 const STEPS: { title: string; body: string }[] = [
   {
     title: 'Les mots',
-    body: 'Les Civils reçoivent tous le même mot. Les Undercover reçoivent un mot proche, mais différent. Personne ne sait dans quel camp il est.',
+    body: 'Les Civils reçoivent tous le même mot. Les Undercover reçoivent un mot proche, mais différent. Mister White n’a aucun mot : il doit bluffer.',
   },
   {
     title: 'Le téléphone circule',
-    body: 'Chacun découvre son mot en secret, le mémorise, puis passe le téléphone au joueur suivant.',
+    body: 'Chacun découvre son mot (ou son absence de mot) en secret, puis passe le téléphone au joueur suivant.',
   },
   {
     title: 'La discussion',
-    body: 'À tour de rôle, chacun donne un indice sur son mot, sans le dire. Assez précis pour prouver votre camp, assez flou pour ne pas aider l’intrus.',
+    body: 'À tour de rôle, chacun donne un indice. Mister White invente à partir des indices des autres.',
   },
   {
     title: 'Le vote',
-    body: 'Chaque joueur vote en secret contre celui qu’il soupçonne. Le plus désigné est éliminé et son rôle révélé. En cas d’égalité, personne ne part.',
+    body: 'Chaque joueur vote en secret. Le plus désigné est éliminé et son rôle révélé. En cas d’égalité, personne ne part.',
+  },
+  {
+    title: 'Mister White',
+    body: 'S’il est éliminé, il peut tenter de trouver le mot des Civils : s’il réussit, il gagne seul. S’il reste en vie jusqu’à 2 joueurs, il gagne aussi.',
   },
   {
     title: 'La victoire',
-    body: 'Les Civils gagnent s’ils éliminent tous les Undercover. Les Undercover gagnent s’ils sont aussi nombreux que les Civils encore en jeu.',
+    body: 'Les Civils gagnent en éliminant tous les Undercover et Mister White. Les Undercover gagnent s’ils sont aussi nombreux que les Civils encore en jeu.',
   },
 ];
 

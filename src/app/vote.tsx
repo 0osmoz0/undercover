@@ -23,8 +23,18 @@ export default function VoteScreen() {
     if (!ready || resolved.current) return;
     resolved.current = true;
     finishVoting();
-    router.replace('/reveal');
+    // Navigation différée : la phase devient reveal | guess | ended
   }, [ready, finishVoting]);
+
+  useEffect(() => {
+    if (!resolved.current) return;
+    if (phase === 'guess') {
+      router.replace('/guess');
+    } else if (phase === 'reveal' || phase === 'ended') {
+      // Toujours montrer la révélation avant l’écran de fin
+      router.replace('/reveal');
+    }
+  }, [phase]);
 
   if (!game) return <NoGame />;
 

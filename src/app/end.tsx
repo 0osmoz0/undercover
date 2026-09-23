@@ -7,20 +7,45 @@ import { PrimaryButton } from '@/components/game/PrimaryButton';
 import { Screen } from '@/components/game/Screen';
 import { Palette, Radius, Space, Type } from '@/constants/colors';
 import { useGame } from '@/context/game-context';
+import { roleLabel, type Role } from '../../lib/game';
+
+function roleColor(role: Role): string {
+  if (role === 'undercover') return Palette.danger;
+  if (role === 'mrWhite') return Palette.mrWhite;
+  return Palette.success;
+}
+
+function winnerTitle(winner: string | null): string {
+  if (winner === 'civilians') return 'Les Civils gagnent';
+  if (winner === 'mrWhite') return 'Mister White gagne';
+  return 'Les Undercover gagnent';
+}
+
+function roleSort(a: Role, b: Role): number {
+  const order: Role[] = ['mrWhite', 'undercover', 'civilian'];
+  return order.indexOf(a) - order.indexOf(b);
+}
 
 export default function EndScreen() {
   const { game, winner, resetGame } = useGame();
 
-  // Pendant « Rejouer » / « Accueil », la partie est réinitialisée alors que l'écran se ferme encore.
   if (!game) return <Screen>{null}</Screen>;
 
-  const civiliansWon = winner === 'civilians';
-  const accent = civiliansWon ? Palette.success : Palette.danger;
-  const winners = game.players.filter((p) =>
-    civiliansWon ? p.role === 'civilian' : p.role === 'undercover',
-  );
+  const accent =
+    winner === 'civilians'
+      ? Palette.success
+      : winner === 'mrWhite'
+        ? Palette.mrWhite
+        : Palette.danger;
+
+  const winners = game.players.filter((p) => {
+    if (winner === 'civilians') return p.role === 'civilian';
+    if (winner === 'mrWhite') return p.role === 'mrWhite';
+    return p.role === 'undercover';
+  });
+
   const sorted = [...game.players].sort((a, b) =>
-    a.role === b.role ? 0 : a.role === 'undercover' ? -1 : 1,
+    a.role === b.role ? 0 : roleSort(a.role, b.role),
   );
 
   const replay = () => {
@@ -43,11 +68,16 @@ export default function EndScreen() {
         </>
       }>
       <View style={[styles.banner, { borderColor: accent }]}>
-        <Text style={styles.kicker}>Fin de partie · {game.round} manche{game.round > 1 ? 's' : ''}</Text>
+        <Text style={styles.kicker}>
+          Fin de partie · {game.round} manche{game.round > 1 ? 's' : ''}
+        </Text>
         <Text style={[styles.title, { color: accent }]} accessibilityRole="header">
-          {civiliansWon ? 'Les Civils gagnent' : 'Les Undercover gagnent'}
+          {winnerTitle(winner)}
         </Text>
         <Text style={styles.winners}>{winners.map((p) => p.name).join(' · ')}</Text>
+        {game.mrWhiteGuessCorrect === true ? (
+          <Text style={styles.guessNote}>Mister White a trouvé le mot des Civils.</Text>
+        ) : null}
       </View>
 
       <View style={styles.words}>
@@ -62,8 +92,8 @@ export default function EndScreen() {
             key={p.id}
             name={p.name}
             eliminated={p.eliminated}
-            detail={`${p.role === 'undercover' ? 'Undercover' : 'Civil'} · ${p.word}${p.eliminated ? ' · éliminé' : ''}`}
-            detailColor={p.role === 'undercover' ? Palette.danger : Palette.success}
+            detail={`${roleLabel(p.role)} · ${p.role === 'mrWhite' ? 'pas de mot' : p.word}${p.eliminated ? ' · éliminé' : ''}`}
+            detailColor={roleColor(p.role)}
           />
         ))}
       </View>
@@ -106,6 +136,11 @@ const styles = StyleSheet.create({
   winners: {
     color: Palette.text,
     fontSize: Type.body,
+    fontWeight: '700',
+  },
+  guessNote: {
+    color: Palette.mrWhite,
+    fontSize: Type.small,
     fontWeight: '700',
   },
   words: {

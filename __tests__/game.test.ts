@@ -5,7 +5,9 @@ import {
   createGame,
   createPlayers,
   eliminatePlayer,
+  resolveMrWhiteGuess,
   resolveVote,
+  suggestedMrWhiteCount,
   suggestedUndercoverCount,
   tallyVotes,
   type WordPair,
@@ -28,6 +30,17 @@ describe('suggestedUndercoverCount', () => {
   });
 });
 
+describe('suggestedMrWhiteCount', () => {
+  it('est 0 en dessous de 5 joueurs', () => {
+    expect(suggestedMrWhiteCount(4)).toBe(0);
+  });
+
+  it('est 1 a partir de 5 joueurs', () => {
+    expect(suggestedMrWhiteCount(5)).toBe(1);
+    expect(suggestedMrWhiteCount(8)).toBe(1);
+  });
+});
+
 describe('createPlayers', () => {
   it('assigne exactement 1 undercover pour 4 joueurs', () => {
     const players = createPlayers(
@@ -42,6 +55,19 @@ describe('createPlayers', () => {
     expect(civilians).toHaveLength(3);
     expect(undercover[0].word).toBe('Burger');
     expect(civilians[0].word).toBe('Pizza');
+  });
+
+  it('assigne un Mister White sans mot', () => {
+    const players = createPlayers(
+      ['Alice', 'Bob', 'Claire', 'Diane', 'Eve'],
+      1,
+      pairs[0],
+      1,
+    );
+    const white = players.filter((p) => p.role === 'mrWhite');
+    expect(white).toHaveLength(1);
+    expect(white[0].word).toBe('');
+    expect(players.filter((p) => p.role === 'civilian')).toHaveLength(3);
   });
 
   it('refuse moins de 3 joueurs', () => {
@@ -63,7 +89,7 @@ describe('createGame', () => {
 });
 
 describe('checkWinner', () => {
-  it('civils gagnent si plus d undercover', () => {
+  it('civils gagnent si plus d undercover ni Mister White', () => {
     const players = createPlayers(
       ['Alice', 'Bob', 'Claire', 'Diane'],
       1,
@@ -84,6 +110,53 @@ describe('checkWinner', () => {
     civilians[0].eliminated = true;
     civilians[1].eliminated = true;
     expect(checkWinner(players)).toBe('undercover');
+  });
+
+  it('Mister White gagne a 2 joueurs restants', () => {
+    const players = createPlayers(
+      ['Alice', 'Bob', 'Claire', 'Diane', 'Eve'],
+      1,
+      pairs[0],
+      1,
+    );
+    players.forEach((p) => {
+      if (p.role === 'civilian') p.eliminated = true;
+    });
+    // Il reste undercover + Mister White = 2
+    expect(checkWinner(players)).toBe('mrWhite');
+  });
+});
+
+describe('Mister White guess', () => {
+  it('gagne s il trouve le mot civil', () => {
+    let game = createGame(
+      ['Alice', 'Bob', 'Claire', 'Diane', 'Eve'],
+      1,
+      pairs,
+      1,
+    );
+    const white = game.players.find((p) => p.role === 'mrWhite')!;
+    game = eliminatePlayer(game, white.id);
+    expect(game.phase).toBe('guess');
+
+    game = resolveMrWhiteGuess(game, game.wordPair.civilian);
+    expect(game.winner).toBe('mrWhite');
+    expect(game.mrWhiteGuessCorrect).toBe(true);
+  });
+
+  it('continue si la tentative echoue', () => {
+    let game = createGame(
+      ['Alice', 'Bob', 'Claire', 'Diane', 'Eve'],
+      1,
+      pairs,
+      1,
+    );
+    const white = game.players.find((p) => p.role === 'mrWhite')!;
+    game = eliminatePlayer(game, white.id);
+    game = resolveMrWhiteGuess(game, 'MotInexistant');
+    expect(game.mrWhiteGuessCorrect).toBe(false);
+    expect(game.winner).toBeNull();
+    expect(game.phase).toBe('reveal');
   });
 });
 

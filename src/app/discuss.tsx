@@ -64,8 +64,20 @@ export default function DiscussScreen() {
                 key={p.id}
                 name={p.name}
                 eliminated
-                detail={p.role === 'undercover' ? 'Undercover' : 'Civil'}
-                detailColor={p.role === 'undercover' ? Palette.danger : Palette.success}
+                detail={
+                  p.role === 'undercover'
+                    ? 'Undercover'
+                    : p.role === 'mrWhite'
+                      ? 'Mister White'
+                      : 'Civil'
+                }
+                detailColor={
+                  p.role === 'undercover'
+                    ? Palette.danger
+                    : p.role === 'mrWhite'
+                      ? Palette.mrWhite
+                      : Palette.success
+                }
               />
             ))}
           </View>

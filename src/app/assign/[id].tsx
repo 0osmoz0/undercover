@@ -28,6 +28,7 @@ export default function AssignScreen() {
   if (done) return <Screen>{null}</Screen>;
 
   const player = game.players[index];
+  const isMrWhite = player.role === 'mrWhite';
 
   const memorized = () => {
     setRevealed(false);
@@ -62,21 +63,42 @@ export default function AssignScreen() {
   return (
     <Screen
       style={styles.center}
-      footer={<PrimaryButton label="J’ai mémorisé" onPress={memorized} />}>
-      <Text style={styles.progress}>{player.name}, ton mot est</Text>
-      <View style={styles.wordCard}>
-        <Text
-          style={styles.word}
-          numberOfLines={2}
-          adjustsFontSizeToFit
-          minimumFontScale={0.5}
-          accessibilityRole="header">
-          {player.word}
-        </Text>
-      </View>
-      <Text style={styles.wordHint}>
-        Mémorise-le, puis cache l’écran avant de passer le téléphone.
-      </Text>
+      footer={
+        <PrimaryButton
+          label={isMrWhite ? 'J’ai compris' : 'J’ai mémorisé'}
+          onPress={memorized}
+        />
+      }>
+      {isMrWhite ? (
+        <>
+          <Text style={styles.progress}>{player.name}</Text>
+          <View style={[styles.wordCard, styles.whiteCard]}>
+            <Text style={styles.whiteRole}>Mister White</Text>
+            <Text style={styles.whiteBlank}>???</Text>
+          </View>
+          <Text style={styles.wordHint}>
+            Tu n’as pas de mot. Écoute les autres, bluffe, et essaie de
+            survivre… ou de trouver le mot des Civils si tu es éliminé.
+          </Text>
+        </>
+      ) : (
+        <>
+          <Text style={styles.progress}>{player.name}, ton mot est</Text>
+          <View style={styles.wordCard}>
+            <Text
+              style={styles.word}
+              numberOfLines={2}
+              adjustsFontSizeToFit
+              minimumFontScale={0.5}
+              accessibilityRole="header">
+              {player.word}
+            </Text>
+          </View>
+          <Text style={styles.wordHint}>
+            Mémorise-le, puis cache l’écran avant de passer le téléphone.
+          </Text>
+        </>
+      )}
     </Screen>
   );
 }
@@ -142,5 +164,22 @@ const styles = StyleSheet.create({
     fontSize: Type.body - 1,
     lineHeight: 23,
     textAlign: 'center',
+  },
+  whiteCard: {
+    borderColor: Palette.mrWhite,
+    gap: Space.md,
+  },
+  whiteRole: {
+    color: Palette.mrWhite,
+    fontSize: Type.small,
+    fontWeight: '800',
+    letterSpacing: 3,
+    textTransform: 'uppercase',
+  },
+  whiteBlank: {
+    color: Palette.text,
+    fontSize: Type.secret,
+    fontWeight: '900',
+    letterSpacing: 8,
   },
 });

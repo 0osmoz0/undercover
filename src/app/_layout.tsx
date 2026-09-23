@@ -35,6 +35,7 @@ export default function RootLayout() {
           <Stack.Screen name="assign/[id]" options={locked} />
           <Stack.Screen name="discuss" options={locked} />
           <Stack.Screen name="vote" options={locked} />
+          <Stack.Screen name="guess" options={locked} />
           <Stack.Screen name="reveal" options={locked} />
           <Stack.Screen name="end" options={locked} />
         </Stack>

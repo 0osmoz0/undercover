@@ -12,6 +12,7 @@ export const Palette = {
   textFaint: '#6C7C93',
   danger: '#C45C4A',
   success: '#4A9B7F',
+  mrWhite: '#8B7EC8',
 } as const;
 
 export const Space = {

@@ -1,4 +1,4 @@
-export type Role = 'civilian' | 'undercover';
+export type Role = 'civilian' | 'undercover' | 'mrWhite';
 
 export type WordPair = {
   civilian: string;
@@ -13,7 +13,7 @@ export type Player = {
   eliminated: boolean;
 };
 
-export type Winner = 'civilians' | 'undercover' | null;
+export type Winner = 'civilians' | 'undercover' | 'mrWhite' | null;
 
 export type GamePhase =
   | 'setup'
@@ -21,6 +21,7 @@ export type GamePhase =
   | 'discuss'
   | 'vote'
   | 'reveal'
+  | 'guess'
   | 'ended';
 
 export type GameState = {
@@ -32,12 +33,41 @@ export type GameState = {
   lastEliminatedId: string | null;
   winner: Winner;
   round: number;
+  mrWhiteGuessCorrect: boolean | null;
+};
+
+export type RoleConfig = {
+  undercoverCount: number;
+  mrWhiteCount: number;
 };
 
 export function suggestedUndercoverCount(playerCount: number): number {
   if (playerCount < 3) return 0;
   if (playerCount <= 6) return 1;
   return 2;
+}
+
+/** Mister White conseillé à partir de 5 joueurs. */
+export function suggestedMrWhiteCount(playerCount: number): number {
+  if (playerCount < 5) return 0;
+  return 1;
+}
+
+export function roleLabel(role: Role): string {
+  switch (role) {
+    case 'undercover':
+      return 'Undercover';
+    case 'mrWhite':
+      return 'Mister White';
+    default:
+      return 'Civil';
+  }
+}
+
+export function wordForRole(role: Role, wordPair: WordPair): string {
+  if (role === 'undercover') return wordPair.undercover;
+  if (role === 'mrWhite') return '';
+  return wordPair.civilian;
 }
 
 export function pickWordPair(pairs: WordPair[]): WordPair {
@@ -57,16 +87,31 @@ export function shuffle<T>(items: T[]): T[] {
   return copy;
 }
 
+export function normalizeGuess(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+}
+
 export function createPlayers(
   names: string[],
   undercoverCount: number,
   wordPair: WordPair,
+  mrWhiteCount = 0,
 ): Player[] {
   if (names.length < 3) {
     throw new Error('Il faut au moins 3 joueurs');
   }
-  if (undercoverCount < 1 || undercoverCount >= names.length) {
-    throw new Error('Nombre d undercover invalide');
+  if (undercoverCount < 0 || mrWhiteCount < 0) {
+    throw new Error('Nombre de roles invalide');
+  }
+  if (undercoverCount + mrWhiteCount < 1) {
+    throw new Error('Il faut au moins 1 Undercover ou Mister White');
+  }
+  if (undercoverCount + mrWhiteCount >= names.length) {
+    throw new Error('Il doit rester au moins 1 civil');
   }
 
   const trimmed = names.map((name) => name.trim()).filter(Boolean);
@@ -81,7 +126,10 @@ export function createPlayers(
 
   const roles: Role[] = [
     ...Array(undercoverCount).fill('undercover' as Role),
-    ...Array(trimmed.length - undercoverCount).fill('civilian' as Role),
+    ...Array(mrWhiteCount).fill('mrWhite' as Role),
+    ...Array(trimmed.length - undercoverCount - mrWhiteCount).fill(
+      'civilian' as Role,
+    ),
   ];
   const shuffledRoles = shuffle(roles);
 
@@ -91,7 +139,7 @@ export function createPlayers(
       id: `player-${index}`,
       name,
       role,
-      word: role === 'undercover' ? wordPair.undercover : wordPair.civilian,
+      word: wordForRole(role, wordPair),
       eliminated: false,
     };
   });
@@ -101,9 +149,15 @@ export function createGame(
   names: string[],
   undercoverCount: number,
   pairs: WordPair[],
+  mrWhiteCount = 0,
 ): GameState {
   const wordPair = pickWordPair(pairs);
-  const players = createPlayers(names, undercoverCount, wordPair);
+  const players = createPlayers(
+    names,
+    undercoverCount,
+    wordPair,
+    mrWhiteCount,
+  );
 
   return {
     players,
@@ -114,6 +168,7 @@ export function createGame(
     lastEliminatedId: null,
     winner: null,
     round: 1,
+    mrWhiteGuessCorrect: null,
   };
 }
 
@@ -121,19 +176,26 @@ export function alivePlayers(players: Player[]): Player[] {
   return players.filter((p) => !p.eliminated);
 }
 
-export function countAliveByRole(
-  players: Player[],
-  role: Role,
-): number {
+export function countAliveByRole(players: Player[], role: Role): number {
   return alivePlayers(players).filter((p) => p.role === role).length;
 }
 
+/**
+ * Civils : plus d'undercover ni de Mister White.
+ * Undercover : autant ou plus d'undercover vivants que de civils.
+ * Mister White : encore en vie et il ne reste que 2 joueurs.
+ */
 export function checkWinner(players: Player[]): Winner {
   const undercoverAlive = countAliveByRole(players, 'undercover');
   const civiliansAlive = countAliveByRole(players, 'civilian');
+  const mrWhiteAlive = countAliveByRole(players, 'mrWhite');
+  const alive = alivePlayers(players).length;
 
-  if (undercoverAlive === 0) return 'civilians';
-  if (undercoverAlive >= civiliansAlive) return 'undercover';
+  if (undercoverAlive === 0 && mrWhiteAlive === 0) return 'civilians';
+  if (mrWhiteAlive > 0 && alive === 2) return 'mrWhite';
+  if (undercoverAlive > 0 && undercoverAlive >= civiliansAlive) {
+    return 'undercover';
+  }
   return null;
 }
 
@@ -169,9 +231,24 @@ export function eliminatePlayer(
   state: GameState,
   playerId: string,
 ): GameState {
+  const target = state.players.find((p) => p.id === playerId);
   const players = state.players.map((player) =>
     player.id === playerId ? { ...player, eliminated: true } : player,
   );
+
+  // Mister White éliminé → chance de trouver le mot des civils.
+  if (target?.role === 'mrWhite') {
+    return {
+      ...state,
+      players,
+      lastEliminatedId: playerId,
+      winner: null,
+      phase: 'guess',
+      votes: {},
+      mrWhiteGuessCorrect: null,
+    };
+  }
+
   const winner = checkWinner(players);
 
   return {
@@ -181,6 +258,33 @@ export function eliminatePlayer(
     winner,
     phase: winner ? 'ended' : 'reveal',
     votes: {},
+  };
+}
+
+export function resolveMrWhiteGuess(
+  state: GameState,
+  guess: string,
+): GameState {
+  if (state.phase !== 'guess') return state;
+
+  const correct =
+    normalizeGuess(guess) === normalizeGuess(state.wordPair.civilian);
+
+  if (correct) {
+    return {
+      ...state,
+      winner: 'mrWhite',
+      phase: 'ended',
+      mrWhiteGuessCorrect: true,
+    };
+  }
+
+  const winner = checkWinner(state.players);
+  return {
+    ...state,
+    winner,
+    phase: winner ? 'ended' : 'reveal',
+    mrWhiteGuessCorrect: false,
   };
 }
 

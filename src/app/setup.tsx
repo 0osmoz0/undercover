@@ -18,12 +18,8 @@ const makeEntry = (name = ''): Entry => {
   return { key: `entry-${entrySeq}`, name };
 };
 
-function maxUndercover(playerCount: number) {
-  return Math.max(1, Math.floor((playerCount - 1) / 2));
-}
-
 export default function SetupScreen() {
-  const { startGame, suggestedUndercoverCount } = useGame();
+  const { startGame, suggestedUndercoverCount, suggestedMrWhiteCount } = useGame();
   const [entries, setEntries] = useState<Entry[]>(() => [
     makeEntry(),
     makeEntry(),
@@ -31,14 +27,28 @@ export default function SetupScreen() {
     makeEntry(),
   ]);
   const [undercoverOverride, setUndercoverOverride] = useState<number | null>(null);
+  const [mrWhiteOverride, setMrWhiteOverride] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const count = entries.length;
-  const maxUc = maxUndercover(count);
-  const undercoverCount = Math.min(
-    maxUc,
-    Math.max(1, undercoverOverride ?? suggestedUndercoverCount(count)),
+  const maxSpecial = Math.max(1, count - 1);
+  const suggestedUc = suggestedUndercoverCount(count);
+  const suggestedMw = suggestedMrWhiteCount(count);
+
+  let undercoverCount = Math.max(
+    0,
+    undercoverOverride ?? suggestedUc,
   );
+  let mrWhiteCount = Math.max(0, Math.min(1, mrWhiteOverride ?? suggestedMw));
+
+  // Au moins 1 civil, et au moins 1 rôle spécial.
+  if (undercoverCount + mrWhiteCount >= count) {
+    undercoverCount = Math.max(0, count - 1 - mrWhiteCount);
+  }
+  if (undercoverCount + mrWhiteCount === 0) {
+    undercoverCount = 1;
+  }
+  undercoverCount = Math.min(undercoverCount, maxSpecial - mrWhiteCount);
 
   const trimmed = entries.map((e) => e.name.trim());
   const missing = trimmed.filter((n) => !n).length;
@@ -70,14 +80,14 @@ export default function SetupScreen() {
   const start = () => {
     if (validation) return;
     try {
-      startGame(trimmed, undercoverCount);
+      startGame(trimmed, undercoverCount, mrWhiteCount);
       router.push('/assign/0');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Impossible de lancer la partie.');
     }
   };
 
-  const civilians = count - undercoverCount;
+  const civilians = count - undercoverCount - mrWhiteCount;
 
   return (
     <Screen
@@ -154,27 +164,61 @@ export default function SetupScreen() {
         <View style={styles.counter}>
           <CounterButton
             label="−"
-            disabled={undercoverCount <= 1}
+            accessibilityLabel="Moins d’undercover"
+            disabled={undercoverCount <= (mrWhiteCount > 0 ? 0 : 1)}
             onPress={() => setUndercoverOverride(undercoverCount - 1)}
           />
           <View style={styles.counterValue}>
             <Text style={styles.counterNumber}>{undercoverCount}</Text>
             <Text style={styles.counterCaption}>
-              contre {civilians} civil{civilians > 1 ? 's' : ''}
+              + {civilians} civil{civilians > 1 ? 's' : ''}
             </Text>
           </View>
           <CounterButton
             label="+"
-            disabled={undercoverCount >= maxUc}
+            accessibilityLabel="Plus d’undercover"
+            disabled={undercoverCount + mrWhiteCount >= count - 1}
             onPress={() => setUndercoverOverride(undercoverCount + 1)}
           />
         </View>
-        {undercoverOverride !== null &&
-        undercoverCount !== suggestedUndercoverCount(count) ? (
-          <Pressable onPress={() => setUndercoverOverride(null)} hitSlop={8}>
-            <Text style={styles.suggest}>
-              Revenir à la valeur conseillée ({suggestedUndercoverCount(count)})
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Mister White</Text>
+        <Text style={styles.sectionHint}>
+          Pas de mot — doit bluffer. Disponible dès 5 joueurs.
+        </Text>
+        <View style={styles.counter}>
+          <CounterButton
+            label="−"
+            accessibilityLabel="Moins de Mister White"
+            disabled={mrWhiteCount <= 0}
+            onPress={() => setMrWhiteOverride(mrWhiteCount - 1)}
+          />
+          <View style={styles.counterValue}>
+            <Text style={[styles.counterNumber, { color: Palette.mrWhite }]}>
+              {mrWhiteCount}
             </Text>
+            <Text style={styles.counterCaption}>
+              {mrWhiteCount === 0 ? 'désactivé' : 'actif'}
+            </Text>
+          </View>
+          <CounterButton
+            label="+"
+            accessibilityLabel="Plus de Mister White"
+            disabled={count < 5 || mrWhiteCount >= 1 || undercoverCount + 1 >= count}
+            onPress={() => setMrWhiteOverride(1)}
+          />
+        </View>
+        {(undercoverOverride !== null || mrWhiteOverride !== null) &&
+        (undercoverCount !== suggestedUc || mrWhiteCount !== suggestedMw) ? (
+          <Pressable
+            onPress={() => {
+              setUndercoverOverride(null);
+              setMrWhiteOverride(null);
+            }}
+            hitSlop={8}>
+            <Text style={styles.suggest}>Revenir aux valeurs conseillées</Text>
           </Pressable>
         ) : null}
       </View>
@@ -186,15 +230,17 @@ function CounterButton({
   label,
   onPress,
   disabled,
+  accessibilityLabel,
 }: {
   label: string;
   onPress: () => void;
   disabled: boolean;
+  accessibilityLabel: string;
 }) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={label === '+' ? 'Plus d’undercover' : 'Moins d’undercover'}
+      accessibilityLabel={accessibilityLabel}
       onPress={onPress}
       disabled={disabled}
       style={({ pressed }) => [styles.counterBtn, pressed && styles.pressed, disabled && styles.disabled]}>
@@ -290,6 +336,11 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     letterSpacing: 2,
     textTransform: 'uppercase',
+  },
+  sectionHint: {
+    color: Palette.textFaint,
+    fontSize: Type.small,
+    marginTop: -Space.sm,
   },
   counter: {
     flexDirection: 'row',
