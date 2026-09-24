@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
   logo: {
     width: '88%',
     maxWidth: 320,
-    aspectRatio: 764 / 1024,
+    aspectRatio: 809 / 1024,
   },
   rule: {
     width: 64,
