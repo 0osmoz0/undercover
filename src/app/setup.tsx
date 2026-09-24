@@ -24,7 +24,12 @@ const makeEntry = (name = ''): Entry => {
 };
 
 export default function SetupScreen() {
-  const { startGame, suggestedUndercoverCount, suggestedMrWhiteCount } = useGame();
+  const {
+    startGame,
+    suggestedUndercoverCount,
+    suggestedMrWhiteCount,
+    selectedTheme,
+  } = useGame();
   const [entries, setEntries] = useState<Entry[]>(() => [
     makeEntry(),
     makeEntry(),
@@ -35,6 +40,24 @@ export default function SetupScreen() {
   const [mrWhiteOverride, setMrWhiteOverride] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
+
+  if (!selectedTheme) {
+    return (
+      <Screen
+        footer={
+          <PrimaryButton
+            label="Choisir un thème"
+            onPress={() => router.replace('/themes')}
+          />
+        }>
+        <ScreenHeader
+          backLabel="Accueil"
+          title="Thème manquant"
+          subtitle="Sélectionne d’abord un pack de mots."
+        />
+      </Screen>
+    );
+  }
 
   const count = entries.length;
   const maxSpecial = Math.max(1, count - 1);
@@ -124,8 +147,8 @@ export default function SetupScreen() {
         </>
       }>
       <ScreenHeader
-        backLabel="Accueil"
-        kicker="Briefing · Agents"
+        backLabel="Thèmes"
+        kicker={`Thème · ${selectedTheme.title}`}
         title="Les joueurs"
         subtitle={`${count} agents enregistrés · de ${MIN_PLAYERS} à ${MAX_PLAYERS}`}
       />

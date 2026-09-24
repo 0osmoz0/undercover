@@ -27,6 +27,8 @@ export type GamePhase =
 export type GameState = {
   players: Player[];
   wordPair: WordPair;
+  themeId: string;
+  themeTitle: string;
   phase: GamePhase;
   assignIndex: number;
   votes: Record<string, string>;
@@ -150,6 +152,7 @@ export function createGame(
   undercoverCount: number,
   pairs: WordPair[],
   mrWhiteCount = 0,
+  theme?: { id: string; title: string },
 ): GameState {
   const wordPair = pickWordPair(pairs);
   const players = createPlayers(
@@ -162,6 +165,8 @@ export function createGame(
   return {
     players,
     wordPair,
+    themeId: theme?.id ?? 'custom',
+    themeTitle: theme?.title ?? 'Personnalisé',
     phase: 'assign',
     assignIndex: 0,
     votes: {},

@@ -49,7 +49,7 @@ export default function HomeScreen() {
           <PrimaryButton
             label="Nouvelle partie"
             haptic="medium"
-            onPress={() => router.push('/setup')}
+            onPress={() => router.push('/themes')}
           />
           <PrimaryButton
             label="Comment on joue ?"

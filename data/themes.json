@@ -1,0 +1,384 @@
+{
+  "themes": [
+    {
+      "id": "classique",
+      "title": "Classique",
+      "subtitle": "Le pack de base, tous publics",
+      "group": "Essentiels",
+      "pairs": [
+        { "civilian": "Pizza", "undercover": "Burger" },
+        { "civilian": "Pomme", "undercover": "Poire" },
+        { "civilian": "Chat", "undercover": "Chien" },
+        { "civilian": "Café", "undercover": "Thé" },
+        { "civilian": "Plage", "undercover": "Piscine" },
+        { "civilian": "Avion", "undercover": "Hélicoptère" },
+        { "civilian": "Guitare", "undercover": "Piano" },
+        { "civilian": "Football", "undercover": "Rugby" },
+        { "civilian": "Soleil", "undercover": "Lune" },
+        { "civilian": "Livre", "undercover": "Magazine" }
+      ]
+    },
+    {
+      "id": "jeux-video",
+      "title": "Jeux vidéo",
+      "subtitle": "Consoles, licences et univers",
+      "group": "Culture pop",
+      "pairs": [
+        { "civilian": "Minecraft", "undercover": "Roblox" },
+        { "civilian": "Fortnite", "undercover": "Apex Legends" },
+        { "civilian": "PlayStation", "undercover": "Xbox" },
+        { "civilian": "Nintendo Switch", "undercover": "Steam Deck" },
+        { "civilian": "Zelda", "undercover": "Mario" },
+        { "civilian": "Pokémon", "undercover": "Digimon" },
+        { "civilian": "GTA", "undercover": "Watch Dogs" },
+        { "civilian": "FIFA", "undercover": "PES" },
+        { "civilian": "Call of Duty", "undercover": "Battlefield" },
+        { "civilian": "Among Us", "undercover": "Town of Salem" },
+        { "civilian": "League of Legends", "undercover": "Dota" },
+        { "civilian": "Valorant", "undercover": "CS:GO" }
+      ]
+    },
+    {
+      "id": "persos-jv",
+      "title": "Persos de jeux vidéo",
+      "subtitle": "Héros et anti-héros pixelisés",
+      "group": "Culture pop",
+      "pairs": [
+        { "civilian": "Mario", "undercover": "Luigi" },
+        { "civilian": "Sonic", "undercover": "Shadow" },
+        { "civilian": "Link", "undercover": "Zelda" },
+        { "civilian": "Pikachu", "undercover": "Eevee" },
+        { "civilian": "Master Chief", "undercover": "Doomguy" },
+        { "civilian": "Kratos", "undercover": "Atreus" },
+        { "civilian": "Lara Croft", "undercover": "Nathan Drake" },
+        { "civilian": "Geralt", "undercover": "Ciri" },
+        { "civilian": "Steve", "undercover": "Alex" },
+        { "civilian": "Pac-Man", "undercover": "Ms. Pac-Man" }
+      ]
+    },
+    {
+      "id": "anime",
+      "title": "Animé",
+      "subtitle": "Séries japonaises cultes",
+      "group": "Culture pop",
+      "pairs": [
+        { "civilian": "Naruto", "undercover": "One Piece" },
+        { "civilian": "Dragon Ball", "undercover": "Saint Seiya" },
+        { "civilian": "Attack on Titan", "undercover": "Demon Slayer" },
+        { "civilian": "Death Note", "undercover": "Code Geass" },
+        { "civilian": "Jujutsu Kaisen", "undercover": "My Hero Academia" },
+        { "civilian": "Hunter x Hunter", "undercover": "Bleach" },
+        { "civilian": "Tokyo Ghoul", "undercover": "Parasyte" },
+        { "civilian": "Spy x Family", "undercover": "Assassination Classroom" },
+        { "civilian": "Cowboy Bebop", "undercover": "Trigun" },
+        { "civilian": "Studio Ghibli", "undercover": "Makoto Shinkai" }
+      ]
+    },
+    {
+      "id": "persos-anime",
+      "title": "Persos d’animé",
+      "subtitle": "Shinobis, pirates et héros",
+      "group": "Culture pop",
+      "pairs": [
+        { "civilian": "Goku", "undercover": "Vegeta" },
+        { "civilian": "Naruto", "undercover": "Sasuke" },
+        { "civilian": "Luffy", "undercover": "Zoro" },
+        { "civilian": "L", "undercover": "Light" },
+        { "civilian": "Tanjiro", "undercover": "Zenitsu" },
+        { "civilian": "Eren", "undercover": "Mikasa" },
+        { "civilian": "Gojo", "undercover": "Geto" },
+        { "civilian": "Ichigo", "undercover": "Rukia" },
+        { "civilian": "Ash Ketchum", "undercover": "Sacha" },
+        { "civilian": "Totoro", "undercover": "No-Face" }
+      ]
+    },
+    {
+      "id": "disney",
+      "title": "Disney",
+      "subtitle": "Films, parcs et magie",
+      "group": "Culture pop",
+      "pairs": [
+        { "civilian": "Disney", "undercover": "Pixar" },
+        { "civilian": "Frozen", "undercover": "Moana" },
+        { "civilian": "Le Roi Lion", "undercover": "Bambi" },
+        { "civilian": "Toy Story", "undercover": "Cars" },
+        { "civilian": "Aladdin", "undercover": "Hercule" },
+        { "civilian": "La Petite Sirène", "undercover": "Raiponce" },
+        { "civilian": "Star Wars", "undercover": "Indiana Jones" },
+        { "civilian": "Disneyland", "undercover": "Walt Disney World" },
+        { "civilian": "Mickey", "undercover": "Minnie" },
+        { "civilian": "Encanto", "undercover": "Coco" }
+      ]
+    },
+    {
+      "id": "persos-disney",
+      "title": "Persos Disney",
+      "subtitle": "Princes, vilains et sidekicks",
+      "group": "Culture pop",
+      "pairs": [
+        { "civilian": "Elsa", "undercover": "Anna" },
+        { "civilian": "Simba", "undercover": "Nala" },
+        { "civilian": "Buzz", "undercover": "Woody" },
+        { "civilian": "Stitch", "undercover": "Angel" },
+        { "civilian": "Maléfique", "undercover": "Ursula" },
+        { "civilian": "Jasmine", "undercover": "Belle" },
+        { "civilian": "Donald", "undercover": "Dingo" },
+        { "civilian": "Mulan", "undercover": "Mérida" },
+        { "civilian": "Olaf", "undercover": "Sven" },
+        { "civilian": "Scar", "undercover": "Jafar" }
+      ]
+    },
+    {
+      "id": "marvel-dc",
+      "title": "Marvel & DC",
+      "subtitle": "Super-héros et vilains",
+      "group": "Culture pop",
+      "pairs": [
+        { "civilian": "Iron Man", "undercover": "Batman" },
+        { "civilian": "Spider-Man", "undercover": "Miles Morales" },
+        { "civilian": "Thor", "undercover": "Loki" },
+        { "civilian": "Wonder Woman", "undercover": "Captain Marvel" },
+        { "civilian": "Joker", "undercover": "Thanos" },
+        { "civilian": "Deadpool", "undercover": "Wolverine" },
+        { "civilian": "Black Panther", "undercover": "Aquaman" },
+        { "civilian": "Hulk", "undercover": "She-Hulk" },
+        { "civilian": "Flash", "undercover": "Quicksilver" },
+        { "civilian": "Doctor Strange", "undercover": "Scarlet Witch" }
+      ]
+    },
+    {
+      "id": "cinema",
+      "title": "Cinéma",
+      "subtitle": "Blockbusters et classiques",
+      "group": "Culture pop",
+      "pairs": [
+        { "civilian": "Inception", "undercover": "Interstellar" },
+        { "civilian": "Titanic", "undercover": "Avatar" },
+        { "civilian": "Harry Potter", "undercover": "Le Seigneur des Anneaux" },
+        { "civilian": "Matrix", "undercover": "Tron" },
+        { "civilian": "Jurassic Park", "undercover": "King Kong" },
+        { "civilian": "James Bond", "undercover": "Mission Impossible" },
+        { "civilian": "Joker", "undercover": "The Dark Knight" },
+        { "civilian": "Fast & Furious", "undercover": "Mission Drift" },
+        { "civilian": "Shrek", "undercover": "Kung Fu Panda" },
+        { "civilian": "Dune", "undercover": "Star Wars" }
+      ]
+    },
+    {
+      "id": "musique",
+      "title": "Musique",
+      "subtitle": "Artistes, genres, instruments",
+      "group": "Culture pop",
+      "pairs": [
+        { "civilian": "Rap", "undercover": "Trap" },
+        { "civilian": "Rock", "undercover": "Metal" },
+        { "civilian": "Jazz", "undercover": "Blues" },
+        { "civilian": "DJ", "undercover": "Producteur" },
+        { "civilian": "Guitare", "undercover": "Basse" },
+        { "civilian": "Spotify", "undercover": "Apple Music" },
+        { "civilian": "Concert", "undercover": "Festival" },
+        { "civilian": "Clip", "undercover": "Live" },
+        { "civilian": "Album", "undercover": "EP" },
+        { "civilian": "Karaoke", "undercover": "Open mic" }
+      ]
+    },
+    {
+      "id": "sport",
+      "title": "Sport",
+      "subtitle": "Terrain, panier, filet",
+      "group": "Lifestyle",
+      "pairs": [
+        { "civilian": "Football", "undercover": "Futsal" },
+        { "civilian": "Basket", "undercover": "Handball" },
+        { "civilian": "Tennis", "undercover": "Badminton" },
+        { "civilian": "Natation", "undercover": "Water-polo" },
+        { "civilian": "Ski", "undercover": "Snowboard" },
+        { "civilian": "Boxe", "undercover": "MMA" },
+        { "civilian": "F1", "undercover": "MotoGP" },
+        { "civilian": "JO", "undercover": "Coupe du Monde" },
+        { "civilian": "Escalade", "undercover": "Randonnée" },
+        { "civilian": "Yoga", "undercover": "Pilates" }
+      ]
+    },
+    {
+      "id": "food",
+      "title": "Food",
+      "subtitle": "Street food et grands classiques",
+      "group": "Lifestyle",
+      "pairs": [
+        { "civilian": "Sushi", "undercover": "Maki" },
+        { "civilian": "Tacos", "undercover": "Burrito" },
+        { "civilian": "Raclette", "undercover": "Fondue" },
+        { "civilian": "Kebab", "undercover": "Shawarma" },
+        { "civilian": "Poke", "undercover": "Buddha bowl" },
+        { "civilian": "Croissant", "undercover": "Pain au chocolat" },
+        { "civilian": "Bubble tea", "undercover": "Smoothie" },
+        { "civilian": "Ramen", "undercover": "Udon" },
+        { "civilian": "Burger", "undercover": "Hot-dog" },
+        { "civilian": "Glace", "undercover": "Sorbet" }
+      ]
+    },
+    {
+      "id": "reseaux-sociaux",
+      "title": "Réseaux sociaux",
+      "subtitle": "Apps, trends et influence",
+      "group": "Lifestyle",
+      "pairs": [
+        { "civilian": "TikTok", "undercover": "Reels" },
+        { "civilian": "Instagram", "undercover": "BeReal" },
+        { "civilian": "Snapchat", "undercover": "WhatsApp" },
+        { "civilian": "Twitter", "undercover": "Threads" },
+        { "civilian": "YouTube", "undercover": "Twitch" },
+        { "civilian": "Discord", "undercover": "Slack" },
+        { "civilian": "Story", "undercover": "Post" },
+        { "civilian": "Like", "undercover": "Repost" },
+        { "civilian": "Influenceur", "undercover": "Créateur" },
+        { "civilian": "Hashtag", "undercover": "Mention" }
+      ]
+    },
+    {
+      "id": "esiee-embarque",
+      "title": "Systèmes embarqués",
+      "subtitle": "ESIEE · cartes, capteurs, IoT",
+      "group": "ESIEE",
+      "pairs": [
+        { "civilian": "Arduino", "undercover": "Raspberry Pi" },
+        { "civilian": "Microcontrôleur", "undercover": "FPGA" },
+        { "civilian": "Capteur", "undercover": "Actionneur" },
+        { "civilian": "I2C", "undercover": "SPI" },
+        { "civilian": "RTOS", "undercover": "Bare metal" },
+        { "civilian": "UART", "undercover": "CAN" },
+        { "civilian": "ESP32", "undercover": "STM32" },
+        { "civilian": "Firmware", "undercover": "Bootloader" },
+        { "civilian": "Oscilloscope", "undercover": "Multimètre" },
+        { "civilian": "IoT", "undercover": "Edge computing" }
+      ]
+    },
+    {
+      "id": "esiee-info",
+      "title": "Informatique & applications",
+      "subtitle": "ESIEE · code, apps, cloud",
+      "group": "ESIEE",
+      "pairs": [
+        { "civilian": "React", "undercover": "Vue" },
+        { "civilian": "Python", "undercover": "Java" },
+        { "civilian": "Git", "undercover": "SVN" },
+        { "civilian": "API", "undercover": "SDK" },
+        { "civilian": "Frontend", "undercover": "Backend" },
+        { "civilian": "Docker", "undercover": "Kubernetes" },
+        { "civilian": "SQL", "undercover": "NoSQL" },
+        { "civilian": "Agile", "undercover": "Scrum" },
+        { "civilian": "Bug", "undercover": "Feature" },
+        { "civilian": "CI/CD", "undercover": "DevOps" }
+      ]
+    },
+    {
+      "id": "esiee-reseau",
+      "title": "Réseau & sécurité",
+      "subtitle": "ESIEE · packets, firewalls, CTF",
+      "group": "ESIEE",
+      "pairs": [
+        { "civilian": "Firewall", "undercover": "Proxy" },
+        { "civilian": "VPN", "undercover": "Proxy SOCKS" },
+        { "civilian": "Wi-Fi", "undercover": "Ethernet" },
+        { "civilian": "Router", "undercover": "Switch" },
+        { "civilian": "Phishing", "undercover": "Spear phishing" },
+        { "civilian": "Malware", "undercover": "Ransomware" },
+        { "civilian": "HTTPS", "undercover": "TLS" },
+        { "civilian": "DNS", "undercover": "DHCP" },
+        { "civilian": "Pentest", "undercover": "Audit" },
+        { "civilian": "Zero-day", "undercover": "CVE" }
+      ]
+    },
+    {
+      "id": "esiee-gi",
+      "title": "Génie industriel",
+      "subtitle": "ESIEE · process, lean, usine",
+      "group": "ESIEE",
+      "pairs": [
+        { "civilian": "Lean", "undercover": "Six Sigma" },
+        { "civilian": "Kanban", "undercover": "Just-in-time" },
+        { "civilian": "Supply chain", "undercover": "Logistique" },
+        { "civilian": "ERP", "undercover": "MES" },
+        { "civilian": "CAD", "undercover": "CAM" },
+        { "civilian": "Usine 4.0", "undercover": "Automation" },
+        { "civilian": "Qualité", "undercover": "Contrôle" },
+        { "civilian": "Gantt", "undercover": "PERT" },
+        { "civilian": "Stock", "undercover": "Inventaire" },
+        { "civilian": "Maintenance", "undercover": "Prédictive" }
+      ]
+    },
+    {
+      "id": "esiee-data",
+      "title": "Data & IA",
+      "subtitle": "ESIEE · modèles, datasets, ML",
+      "group": "ESIEE",
+      "pairs": [
+        { "civilian": "Machine Learning", "undercover": "Deep Learning" },
+        { "civilian": "Neurone", "undercover": "Couche" },
+        { "civilian": "Dataset", "undercover": "Corpus" },
+        { "civilian": "ChatGPT", "undercover": "Claude" },
+        { "civilian": "Overfitting", "undercover": "Underfitting" },
+        { "civilian": "Python", "undercover": "R" },
+        { "civilian": "TensorFlow", "undercover": "PyTorch" },
+        { "civilian": "Prompt", "undercover": "Fine-tuning" },
+        { "civilian": "Vision", "undercover": "NLP" },
+        { "civilian": "GPU", "undercover": "TPU" }
+      ]
+    },
+    {
+      "id": "campus",
+      "title": "Vie de campus",
+      "subtitle": "Amphis, partiels, soirées",
+      "group": "ESIEE",
+      "pairs": [
+        { "civilian": "Partiel", "undercover": "Rattrapage" },
+        { "civilian": "Amphi", "undercover": "TD" },
+        { "civilian": "BDE", "undercover": "BDS" },
+        { "civilian": "Stage", "undercover": "Alternance" },
+        { "civilian": "Crous", "undercover": "RU" },
+        { "civilian": "Projet", "undercover": "Soutenance" },
+        { "civilian": "Bureau des élèves", "undercover": "Association" },
+        { "civilian": "Intégration", "undercover": "WEI" },
+        { "civilian": "Notes", "undercover": "Moyenne" },
+        { "civilian": "Café campus", "undercover": "Distributeur" }
+      ]
+    },
+    {
+      "id": "science-fiction",
+      "title": "Science-fiction",
+      "subtitle": "Futurs, robots, galaxies",
+      "group": "Univers",
+      "pairs": [
+        { "civilian": "Robot", "undercover": "Android" },
+        { "civilian": "Cyborg", "undercover": "Clone" },
+        { "civilian": "Hyperespace", "undercover": "Trou de ver" },
+        { "civilian": "Laser", "undercover": "Plasma" },
+        { "civilian": "Vaisseau", "undercover": "Station spatiale" },
+        { "civilian": "IA", "undercover": "Conscience" },
+        { "civilian": "Dystopie", "undercover": "Utopie" },
+        { "civilian": "Teleportation", "undercover": "Portail" },
+        { "civilian": "Alien", "undercover": "Extraterrestre" },
+        { "civilian": "Time travel", "undercover": "Paradoxe" }
+      ]
+    },
+    {
+      "id": "horreur",
+      "title": "Horreur",
+      "subtitle": "Frissons garantis",
+      "group": "Univers",
+      "pairs": [
+        { "civilian": "Vampire", "undercover": "Loup-garou" },
+        { "civilian": "Fantôme", "undercover": "Esprit" },
+        { "civilian": "Zombie", "undercover": "Infecté" },
+        { "civilian": "Maison hantée", "undercover": "Cimetière" },
+        { "civilian": "Couteau", "undercover": "Hache" },
+        { "civilian": "Possession", "undercover": "Malédiction" },
+        { "civilian": "Slasher", "undercover": "Thriller" },
+        { "civilian": "Clowns", "undercover": "Poupées" },
+        { "civilian": "Nuit", "undercover": "Brouillard" },
+        { "civilian": "Cri", "undercover": "Silence" }
+      ]
+    }
+  ]
+}
