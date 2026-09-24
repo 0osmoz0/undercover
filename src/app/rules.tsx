@@ -21,8 +21,8 @@ const STEPS: { title: string; body: string }[] = [
     body: 'À tour de rôle, chacun donne un indice. Mister White invente à partir des indices des autres.',
   },
   {
-    title: 'Le vote',
-    body: 'Chaque joueur vote en secret. Le plus désigné est éliminé et son rôle révélé. En cas d’égalité, personne ne part.',
+    title: 'L’élimination',
+    body: 'Vous discutez et vous mettez d’accord à voix haute. Puis quelqu’un appuie sur le pseudo du joueur choisi : son rôle est révélé à l’écran.',
   },
   {
     title: 'Mister White',

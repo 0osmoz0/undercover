@@ -15,7 +15,7 @@ import { useGame } from '@/context/game-context';
 import { useBlockBack } from '@/hooks/use-block-back';
 
 export default function DiscussScreen() {
-  const { game, startVote } = useGame();
+  const { game, startEliminate } = useGame();
   const [minutes, setMinutes] = useState(3);
   const [starterSeed] = useState(() => Math.random());
   useBlockBack();
@@ -26,15 +26,21 @@ export default function DiscussScreen() {
   const eliminated = game.players.filter((p) => p.eliminated);
   const starter = alive[Math.floor(starterSeed * alive.length)];
 
-  const goVote = () => {
-    startVote();
+  const goEliminate = () => {
+    startEliminate();
     router.replace('/vote');
   };
 
   return (
     <Screen
       scroll
-      footer={<PrimaryButton label="Passer au vote" haptic="medium" onPress={goVote} />}>
+      footer={
+        <PrimaryButton
+          label="Éliminer quelqu’un"
+          haptic="medium"
+          onPress={goEliminate}
+        />
+      }>
       <ScreenHeader
         kicker={`Manche ${String(game.round).padStart(2, '0')}`}
         title="Discussion"

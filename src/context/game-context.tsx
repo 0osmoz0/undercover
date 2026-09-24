@@ -8,12 +8,10 @@ import React, {
 
 import wordPairs from '../../data/words.json';
 import {
-  allAliveHaveVoted,
-  castVote,
   createGame,
+  eliminatePlayer,
   nextRound,
   resolveMrWhiteGuess,
-  resolveVote,
   suggestedMrWhiteCount,
   suggestedUndercoverCount,
   type GamePhase,
@@ -35,15 +33,13 @@ type GameContextValue = {
   revealWordForCurrent: () => void;
   hideWordAndAdvance: () => void;
   startDiscussion: () => void;
-  startVote: () => void;
-  submitVote: (voterId: string, targetId: string) => void;
-  finishVoting: () => void;
+  startEliminate: () => void;
+  eliminatePlayerById: (playerId: string) => GameState | null;
   submitMrWhiteGuess: (guess: string) => void;
   continueAfterReveal: () => void;
   resetGame: () => void;
   suggestedUndercoverCount: (count: number) => number;
   suggestedMrWhiteCount: (count: number) => number;
-  allVoted: boolean;
 };
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -81,24 +77,21 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setGame((prev) => (prev ? { ...prev, phase: 'discuss' } : prev));
   }, []);
 
-  const startVote = useCallback(() => {
+  const startEliminate = useCallback(() => {
     setGame((prev) =>
       prev ? { ...prev, phase: 'vote', votes: {} } : prev,
     );
   }, []);
 
-  const submitVote = useCallback((voterId: string, targetId: string) => {
+  const eliminatePlayerById = useCallback((playerId: string) => {
+    let next: GameState | null = null;
     setGame((prev) => {
       if (!prev) return prev;
-      return castVote(prev, voterId, targetId);
+      if (prev.phase !== 'vote' && prev.phase !== 'discuss') return prev;
+      next = eliminatePlayer(prev, playerId);
+      return next;
     });
-  }, []);
-
-  const finishVoting = useCallback(() => {
-    setGame((prev) => {
-      if (!prev || prev.phase !== 'vote') return prev;
-      return resolveVote(prev);
-    });
+    return next;
   }, []);
 
   const submitMrWhiteGuess = useCallback((guess: string) => {
@@ -132,15 +125,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       revealWordForCurrent,
       hideWordAndAdvance,
       startDiscussion,
-      startVote,
-      submitVote,
-      finishVoting,
+      startEliminate,
+      eliminatePlayerById,
       submitMrWhiteGuess,
       continueAfterReveal,
       resetGame,
       suggestedUndercoverCount,
       suggestedMrWhiteCount,
-      allVoted: game ? allAliveHaveVoted(game) : false,
     }),
     [
       game,
@@ -148,9 +139,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       revealWordForCurrent,
       hideWordAndAdvance,
       startDiscussion,
-      startVote,
-      submitVote,
-      finishVoting,
+      startEliminate,
+      eliminatePlayerById,
       submitMrWhiteGuess,
       continueAfterReveal,
       resetGame,
