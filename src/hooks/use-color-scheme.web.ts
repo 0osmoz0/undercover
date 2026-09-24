@@ -8,6 +8,8 @@ export function useColorScheme() {
   const [hasHydrated, setHasHydrated] = useState(false);
 
   useEffect(() => {
+    // Hydration flag for static web render — sync setState is intentional.
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- template hydration pattern
     setHasHydrated(true);
   }, []);
 
