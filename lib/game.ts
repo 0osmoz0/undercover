@@ -94,7 +94,8 @@ export function normalizeGuess(value: string): string {
     .trim()
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[\u2018\u2019\u02bc`]/g, "'");
 }
 
 export function createPlayers(
