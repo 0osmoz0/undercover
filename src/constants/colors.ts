@@ -1,4 +1,4 @@
-/** Palette alignée sur le logo ESIEE Undercover : noir · blanc · rouge. */
+/** Palette alignée sur le logo Club Nix Undercover : noir · blanc · rouge. */
 export const Palette = {
   bgTop: '#000000',
   bgMid: '#070707',
@@ -7,15 +7,15 @@ export const Palette = {
   surfaceRaised: '#1C1C1C',
   border: '#2A2A2A',
   hairline: 'rgba(255, 255, 255, 0.08)',
-  accent: '#E30613',
-  accentPressed: '#B80510',
-  accentSoft: 'rgba(227, 6, 19, 0.14)',
-  accentLine: 'rgba(227, 6, 19, 0.45)',
+  accent: '#A82424',
+  accentPressed: '#8A1D1D',
+  accentSoft: 'rgba(168, 36, 36, 0.14)',
+  accentLine: 'rgba(168, 36, 36, 0.45)',
   onAccent: '#FFFFFF',
   text: '#FFFFFF',
   textMuted: '#A8A8A8',
   textFaint: '#6E6E6E',
-  danger: '#E30613',
+  danger: '#A82424',
   success: '#C8C8C8',
   mrWhite: '#F0F0F0',
 } as const;

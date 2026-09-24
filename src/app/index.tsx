@@ -18,7 +18,7 @@ import { Screen } from '@/components/game/Screen';
 import { Palette, Space, Type } from '@/constants/colors';
 import { Font } from '@/constants/fonts';
 
-const logo = require('../../assets/images/esiee-undercover-logo.png');
+const logo = require('../../assets/images/club-nix-undercover-logo.jpg');
 
 export default function HomeScreen() {
   const intro = useSharedValue(0);
@@ -62,7 +62,7 @@ export default function HomeScreen() {
       }>
       <Animated.View entering={FadeIn.duration(600).delay(200)} style={styles.topBar}>
         <Kicker>Dossier classifié</Kicker>
-        <Text style={styles.topMeta}>ESIEE · PARIS</Text>
+        <Text style={styles.topMeta}>CLUB NIX</Text>
       </Animated.View>
 
       <View style={styles.hero}>
@@ -71,7 +71,7 @@ export default function HomeScreen() {
             source={logo}
             style={styles.logo}
             contentFit="contain"
-            accessibilityLabel="ESIEE Paris Undercover"
+            accessibilityLabel="Club Nix Undercover"
           />
         </Animated.View>
 
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
   logo: {
     width: '88%',
     maxWidth: 320,
-    aspectRatio: 500 / 571,
+    aspectRatio: 764 / 1024,
   },
   rule: {
     width: 64,
