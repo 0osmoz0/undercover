@@ -1,8 +1,14 @@
+import { useFonts } from 'expo-font';
 import { DarkTheme, Stack, ThemeProvider } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 
 import { Palette } from '@/constants/colors';
+import { FontAssets } from '@/constants/fonts';
 import { GameProvider } from '@/context/game-context';
+
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 const theme = {
   ...DarkTheme,
@@ -19,6 +25,15 @@ const theme = {
 const locked = { gestureEnabled: false, animation: 'fade' } as const;
 
 export default function RootLayout() {
+  const [loaded, error] = useFonts(FontAssets);
+  const ready = loaded || Boolean(error);
+
+  useEffect(() => {
+    if (ready) SplashScreen.hideAsync().catch(() => {});
+  }, [ready]);
+
+  if (!ready) return null;
+
   return (
     <ThemeProvider value={theme}>
       <GameProvider>
@@ -29,9 +44,12 @@ export default function RootLayout() {
             contentStyle: { backgroundColor: Palette.bgTop },
             animation: 'slide_from_right',
           }}>
-          <Stack.Screen name="index" />
+          <Stack.Screen name="index" options={{ animation: 'fade' }} />
           <Stack.Screen name="setup" />
-          <Stack.Screen name="rules" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
+          <Stack.Screen
+            name="rules"
+            options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+          />
           <Stack.Screen name="assign/[id]" options={locked} />
           <Stack.Screen name="discuss" options={locked} />
           <Stack.Screen name="vote" options={locked} />

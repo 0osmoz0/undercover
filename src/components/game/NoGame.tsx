@@ -2,18 +2,28 @@ import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Palette, Space, Type } from '@/constants/colors';
+import { Font } from '@/constants/fonts';
 
+import { Crosshair } from './Crosshair';
+import { Kicker } from './Kicker';
 import { PrimaryButton } from './PrimaryButton';
 import { Screen } from './Screen';
 
 export function NoGame() {
   return (
-    <Screen style={styles.center}>
+    <Screen
+      style={styles.center}
+      footer={
+        <PrimaryButton label="Retour à l’accueil" onPress={() => router.dismissTo('/')} />
+      }>
       <View style={styles.block}>
-        <Text style={styles.title}>Aucune partie en cours</Text>
-        <Text style={styles.text}>Lance une nouvelle partie depuis l’accueil.</Text>
+        <Crosshair size={72} opacity={0.5} lockOn />
+        <Kicker align="center">Signal perdu</Kicker>
+        <Text style={styles.title} accessibilityRole="header">
+          Aucune partie en cours
+        </Text>
+        <Text style={styles.text}>Lance une nouvelle mission depuis l’accueil.</Text>
       </View>
-      <PrimaryButton label="Retour à l’accueil" onPress={() => router.dismissTo('/')} />
     </Screen>
   );
 }
@@ -21,20 +31,23 @@ export function NoGame() {
 const styles = StyleSheet.create({
   center: {
     justifyContent: 'center',
-    gap: Space.xl,
   },
   block: {
-    gap: Space.sm,
+    gap: Space.md,
     alignItems: 'center',
   },
   title: {
     color: Palette.text,
-    fontSize: Type.heading,
-    fontWeight: '800',
+    fontFamily: Font.display,
+    fontSize: Type.title,
+    lineHeight: Type.title,
+    letterSpacing: 1,
     textAlign: 'center',
+    includeFontPadding: false,
   },
   text: {
     color: Palette.textMuted,
+    fontFamily: Font.body,
     fontSize: Type.body,
     textAlign: 'center',
   },

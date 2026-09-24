@@ -1,23 +1,34 @@
 import { router } from 'expo-router';
+import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import Animated, {
+  Easing,
+  FadeIn,
+  FadeInDown,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from 'react-native-reanimated';
 
+import { Kicker } from '@/components/game/Kicker';
 import { NoGame } from '@/components/game/NoGame';
 import { PrimaryButton } from '@/components/game/PrimaryButton';
-import { Screen } from '@/components/game/Screen';
-import { Palette, Radius, Space, Type } from '@/constants/colors';
+import { Screen, type ScreenTone } from '@/components/game/Screen';
+import { Palette, Space, Type } from '@/constants/colors';
+import { Font } from '@/constants/fonts';
 import { useGame } from '@/context/game-context';
 import { useBlockBack } from '@/hooks/use-block-back';
+import { haptic } from '@/lib/haptics';
 import { roleLabel, type Role } from '../../lib/game';
 
-function roleColor(role: Role): string {
-  if (role === 'undercover') return Palette.danger;
-  if (role === 'mrWhite') return Palette.mrWhite;
-  return Palette.success;
-}
+const BAND_DELAY = 700;
+const BAND_DURATION = 480;
 
-function onRoleColor(role: Role): string {
-  if (role === 'undercover') return Palette.onAccent;
-  return '#111111';
+function toneFor(role: Role | undefined): ScreenTone {
+  if (role === 'undercover') return 'alert';
+  if (role === 'mrWhite') return 'white';
+  return 'neutral';
 }
 
 export default function RevealScreen() {
@@ -29,7 +40,6 @@ export default function RevealScreen() {
   const eliminated = game.lastEliminatedId
     ? game.players.find((p) => p.id === game.lastEliminatedId)
     : undefined;
-  const color = eliminated ? roleColor(eliminated.role) : Palette.accent;
 
   const next = () => {
     const ended = Boolean(winner);
@@ -59,36 +69,53 @@ export default function RevealScreen() {
 
   return (
     <Screen
+      tone={toneFor(eliminated?.role)}
       style={styles.center}
       footer={
-        <PrimaryButton
-          label={winner ? 'Voir les résultats' : 'Manche suivante'}
-          onPress={next}
-        />
+        <Animated.View entering={FadeIn.duration(400).delay(BAND_DELAY + BAND_DURATION)}>
+          <PrimaryButton
+            label={winner ? 'Voir les résultats' : 'Manche suivante'}
+            variant={winner ? 'primary' : 'secondary'}
+            haptic="medium"
+            onPress={next}
+          />
+        </Animated.View>
       }>
       {eliminated ? (
         <>
-          <Text style={styles.kicker}>Le village a tranché</Text>
-          <View style={[styles.card, { borderColor: color }]}>
-            <Text style={styles.name} numberOfLines={2} adjustsFontSizeToFit>
-              {eliminated.name}
-            </Text>
-            <Text style={styles.verdict}>est éliminé·e. C’était</Text>
-            <View style={[styles.roleBand, { backgroundColor: color }]}>
-              <Text style={[styles.role, { color: onRoleColor(eliminated.role) }]}>
-                {roleLabel(eliminated.role)}
-              </Text>
-            </View>
-          </View>
-          <Text style={styles.hint}>{hint()}</Text>
+          <Kicker align="center">{`Verdict · Manche ${String(game.round).padStart(2, '0')}`}</Kicker>
+          <Animated.Text
+            entering={FadeInDown.duration(520)}
+            style={styles.name}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.4}
+            accessibilityRole="header">
+            {eliminated.name}
+          </Animated.Text>
+          <Animated.Text entering={FadeIn.duration(400).delay(250)} style={styles.verdict}>
+            est éliminé·e. C’était
+          </Animated.Text>
+          <RoleBand role={eliminated.role} />
+          <Animated.Text
+            entering={FadeIn.duration(500).delay(BAND_DELAY + BAND_DURATION + 150)}
+            style={styles.hint}>
+            {hint()}
+          </Animated.Text>
         </>
       ) : (
         <>
-          <Text style={styles.kicker}>Résultat du vote</Text>
-          <View style={[styles.card, { borderColor: Palette.accent }]}>
-            <Text style={styles.name}>Égalité</Text>
-            <Text style={styles.verdict}>Personne n’est éliminé cette manche.</Text>
-          </View>
+          <Kicker align="center">Résultat du vote</Kicker>
+          <Animated.Text
+            entering={FadeInDown.duration(520)}
+            style={styles.name}
+            accessibilityRole="header">
+            Égalité
+          </Animated.Text>
+          <View style={styles.tieRule} />
+          <Animated.Text entering={FadeIn.duration(400).delay(250)} style={styles.verdict}>
+            Personne n’est éliminé cette manche.
+          </Animated.Text>
           <Text style={styles.hint}>Rediscutez et votez à nouveau.</Text>
         </>
       )}
@@ -96,56 +123,115 @@ export default function RevealScreen() {
   );
 }
 
+/** Bandeau du rôle révélé en balayage, synchronisé avec un retour haptique. */
+function RoleBand({ role }: { role: Role }) {
+  const wipe = useSharedValue(0);
+
+  useEffect(() => {
+    wipe.set(
+      withDelay(
+        BAND_DELAY,
+        withTiming(1, { duration: BAND_DURATION, easing: Easing.inOut(Easing.cubic) }),
+      ),
+    );
+    const id = setTimeout(
+      () => haptic(role === 'civilian' ? 'medium' : 'heavy'),
+      BAND_DELAY + BAND_DURATION * 0.6,
+    );
+    return () => clearTimeout(id);
+  }, [role, wipe]);
+
+  const bandStyle = useAnimatedStyle(() => ({
+    transform: [{ scaleX: wipe.get() }],
+  }));
+  const labelStyle = useAnimatedStyle(() => {
+    const w = wipe.get();
+    return {
+      opacity: w < 0.55 ? 0 : (w - 0.55) / 0.45,
+      transform: [{ translateY: (1 - w) * 10 }],
+    };
+  });
+
+  const band =
+    role === 'undercover'
+      ? styles.bandUndercover
+      : role === 'mrWhite'
+        ? styles.bandWhite
+        : styles.bandCivil;
+  const labelColor = role === 'mrWhite' ? '#000000' : Palette.text;
+
+  return (
+    <View style={styles.bandWrap} accessible accessibilityLabel={`Rôle : ${roleLabel(role)}`}>
+      <Animated.View style={[styles.band, band, bandStyle]} />
+      <Animated.Text style={[styles.role, { color: labelColor }, labelStyle]}>
+        {roleLabel(role)}
+      </Animated.Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   center: {
     justifyContent: 'center',
-    gap: Space.xl,
-  },
-  kicker: {
-    color: Palette.textMuted,
-    fontSize: Type.small,
-    fontWeight: '800',
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-    textAlign: 'center',
-  },
-  card: {
-    alignItems: 'center',
     gap: Space.md,
-    paddingVertical: Space.xl,
-    paddingHorizontal: Space.lg,
-    backgroundColor: Palette.surface,
-    borderRadius: Radius.lg,
-    borderWidth: 2,
-    overflow: 'hidden',
   },
   name: {
     color: Palette.text,
-    fontSize: Type.display,
-    fontWeight: '900',
+    fontFamily: Font.display,
+    fontSize: Type.hero,
+    lineHeight: Type.hero + 4,
+    letterSpacing: 1.5,
     textAlign: 'center',
+    includeFontPadding: false,
   },
   verdict: {
     color: Palette.textMuted,
-    fontSize: Type.body + 1,
-    fontWeight: '600',
+    fontFamily: Font.mono,
+    fontSize: Type.small,
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
     textAlign: 'center',
   },
-  roleBand: {
+  bandWrap: {
     alignSelf: 'stretch',
-    paddingVertical: Space.md,
-    borderRadius: Radius.sm,
+    minHeight: 92,
     alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: Space.md,
+  },
+  band: {
+    ...StyleSheet.absoluteFill,
+    transformOrigin: 'left',
+  },
+  bandUndercover: {
+    backgroundColor: Palette.accent,
+  },
+  bandWhite: {
+    backgroundColor: Palette.mrWhite,
+  },
+  bandCivil: {
+    backgroundColor: Palette.surfaceRaised,
+    borderWidth: 1.5,
+    borderColor: Palette.text,
   },
   role: {
-    fontSize: Type.title,
-    fontWeight: '900',
-    letterSpacing: 2,
-    textTransform: 'uppercase',
+    fontFamily: Font.display,
+    fontSize: 54,
+    lineHeight: 58,
+    letterSpacing: 4,
+    includeFontPadding: false,
+  },
+  tieRule: {
+    alignSelf: 'center',
+    width: 56,
+    height: 4,
+    backgroundColor: Palette.accent,
   },
   hint: {
     color: Palette.textMuted,
+    fontFamily: Font.body,
     fontSize: Type.body,
+    lineHeight: 24,
     textAlign: 'center',
   },
 });

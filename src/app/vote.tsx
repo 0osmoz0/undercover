@@ -2,11 +2,16 @@ import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { Crosshair } from '@/components/game/Crosshair';
+import { Kicker } from '@/components/game/Kicker';
 import { NoGame } from '@/components/game/NoGame';
+import { PassPhone } from '@/components/game/PassPhone';
 import { PlayerChip } from '@/components/game/PlayerChip';
 import { PrimaryButton } from '@/components/game/PrimaryButton';
 import { Screen } from '@/components/game/Screen';
+import { ScreenHeader } from '@/components/game/ScreenHeader';
 import { Palette, Space, Type } from '@/constants/colors';
+import { Font } from '@/constants/fonts';
 import { useGame } from '@/context/game-context';
 import { useBlockBack } from '@/hooks/use-block-back';
 
@@ -45,7 +50,9 @@ export default function VoteScreen() {
   if (!voter || ready) {
     return (
       <Screen style={styles.center}>
-        <Text style={styles.progress}>Dépouillement…</Text>
+        <Crosshair size={96} lockOn />
+        <Kicker align="center">Dépouillement</Kicker>
+        <Text style={styles.tally}>Les votes sont comptés…</Text>
       </Screen>
     );
   }
@@ -60,18 +67,21 @@ export default function VoteScreen() {
   if (stage === 'pass') {
     return (
       <Screen
-        style={styles.center}
-        footer={<PrimaryButton label="Je suis prêt à voter" onPress={() => setStage('choose')} />}>
-        <Text style={styles.progress}>
-          Vote secret · {votedCount + 1} / {alive.length}
-        </Text>
-        <View style={styles.passBlock}>
-          <Text style={styles.passLabel}>Passe le téléphone à</Text>
-          <Text style={styles.passName} numberOfLines={2} adjustsFontSizeToFit>
-            {voter.name}
-          </Text>
-          <Text style={styles.passHint}>Personne d’autre ne doit voir ton choix.</Text>
-        </View>
+        footer={
+          <PrimaryButton
+            label="Je suis prêt à voter"
+            haptic="medium"
+            onPress={() => setStage('choose')}
+          />
+        }>
+        <PassPhone
+          key={voter.id}
+          step="Vote secret"
+          current={votedCount}
+          total={alive.length}
+          name={voter.name}
+          hint="Personne d’autre ne doit voir ton choix. Le vote reste anonyme."
+        />
       </Screen>
     );
   }
@@ -83,17 +93,17 @@ export default function VoteScreen() {
       scroll
       footer={
         <PrimaryButton
-          label={selected ? 'Confirmer mon vote' : 'Choisis un joueur'}
+          label={selected ? 'Confirmer mon vote' : 'Choisis une cible'}
+          haptic="heavy"
           onPress={confirm}
           disabled={!selected}
         />
       }>
-      <View style={styles.header}>
-        <Text style={styles.progress}>{voter.name}</Text>
-        <Text style={styles.title} accessibilityRole="header">
-          Qui est l’Undercover ?
-        </Text>
-      </View>
+      <ScreenHeader
+        kicker={`${voter.name} · vote secret`}
+        title="Qui est l’intrus ?"
+        subtitle="Désigne le joueur que tu veux éliminer."
+      />
       <View style={styles.list}>
         {targets.map((p) => (
           <PlayerChip
@@ -112,45 +122,12 @@ const styles = StyleSheet.create({
   center: {
     justifyContent: 'center',
     alignItems: 'center',
-    gap: Space.xl,
+    gap: Space.lg,
   },
-  header: {
-    gap: Space.xs,
-    marginBottom: Space.lg,
-  },
-  progress: {
-    color: Palette.accent,
-    fontSize: Type.small,
-    fontWeight: '800',
-    letterSpacing: 1.5,
-    textTransform: 'uppercase',
-  },
-  title: {
-    color: Palette.text,
-    fontSize: Type.title,
-    fontWeight: '900',
-  },
-  passBlock: {
-    alignItems: 'center',
-    gap: Space.md,
-    alignSelf: 'stretch',
-  },
-  passLabel: {
+  tally: {
     color: Palette.textMuted,
-    fontSize: Type.heading,
-    fontWeight: '600',
-  },
-  passName: {
-    color: Palette.text,
-    fontSize: Type.display,
-    fontWeight: '900',
-    textAlign: 'center',
-  },
-  passHint: {
-    color: Palette.textFaint,
-    fontSize: Type.body - 1,
-    textAlign: 'center',
-    marginTop: Space.md,
+    fontFamily: Font.body,
+    fontSize: Type.body,
   },
   list: {
     gap: Space.sm,

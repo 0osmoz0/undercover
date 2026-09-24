@@ -3,7 +3,9 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { PrimaryButton } from '@/components/game/PrimaryButton';
 import { Screen } from '@/components/game/Screen';
+import { ScreenHeader } from '@/components/game/ScreenHeader';
 import { Palette, Space, Type } from '@/constants/colors';
+import { Font } from '@/constants/fonts';
 
 const STEPS: { title: string; body: string }[] = [
   {
@@ -32,6 +34,12 @@ const STEPS: { title: string; body: string }[] = [
   },
 ];
 
+const ROLES: { name: string; color: string; body: string }[] = [
+  { name: 'Civil', color: Palette.text, body: 'Le mot majoritaire. Trouvez les intrus.' },
+  { name: 'Undercover', color: Palette.accent, body: 'Un mot voisin. Fondez-vous dans la masse.' },
+  { name: 'Mister White', color: Palette.mrWhite, body: 'Aucun mot. Bluff total.' },
+];
+
 export default function RulesScreen() {
   return (
     <Screen
@@ -43,9 +51,17 @@ export default function RulesScreen() {
           onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
         />
       }>
-      <Text style={styles.title} accessibilityRole="header">
-        Les règles
-      </Text>
+      <ScreenHeader kicker="Briefing de mission" title="Les règles" />
+
+      <View style={styles.roles}>
+        {ROLES.map((role) => (
+          <View key={role.name} style={[styles.role, { borderTopColor: role.color }]}>
+            <Text style={[styles.roleName, { color: role.color }]}>{role.name}</Text>
+            <Text style={styles.roleBody}>{role.body}</Text>
+          </View>
+        ))}
+      </View>
+
       <View style={styles.list}>
         {STEPS.map((step, index) => (
           <View key={step.title} style={styles.step}>
@@ -62,25 +78,48 @@ export default function RulesScreen() {
 }
 
 const styles = StyleSheet.create({
-  title: {
-    color: Palette.text,
-    fontSize: Type.title + 4,
-    fontWeight: '900',
-    marginBottom: Space.lg,
+  roles: {
+    flexDirection: 'row',
+    gap: Space.sm,
+    marginBottom: Space.xl,
+  },
+  role: {
+    flex: 1,
+    gap: Space.xs,
+    paddingTop: Space.sm,
+    borderTopWidth: 3,
+  },
+  roleName: {
+    fontFamily: Font.display,
+    fontSize: 22,
+    lineHeight: 24,
+    letterSpacing: 1,
+    includeFontPadding: false,
+  },
+  roleBody: {
+    color: Palette.textMuted,
+    fontFamily: Font.body,
+    fontSize: Type.small - 1,
+    lineHeight: 18,
   },
   list: {
-    gap: Space.lg,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderColor: Palette.hairline,
   },
   step: {
     flexDirection: 'row',
     gap: Space.md,
+    paddingVertical: Space.lg - 4,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderColor: Palette.hairline,
   },
   number: {
+    width: 44,
     color: Palette.accent,
-    fontSize: Type.heading,
-    fontWeight: '900',
-    width: 36,
-    fontVariant: ['tabular-nums'],
+    fontFamily: Font.display,
+    fontSize: 40,
+    lineHeight: 40,
+    includeFontPadding: false,
   },
   stepText: {
     flex: 1,
@@ -88,11 +127,15 @@ const styles = StyleSheet.create({
   },
   stepTitle: {
     color: Palette.text,
-    fontSize: Type.body + 1,
-    fontWeight: '800',
+    fontFamily: Font.display,
+    fontSize: 26,
+    lineHeight: 28,
+    letterSpacing: 1,
+    includeFontPadding: false,
   },
   stepBody: {
     color: Palette.textMuted,
+    fontFamily: Font.body,
     fontSize: Type.body - 1,
     lineHeight: 23,
   },

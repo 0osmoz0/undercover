@@ -1,8 +1,11 @@
 import { Pressable, StyleSheet, Text, type StyleProp, type ViewStyle } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import { Palette, Radius, Space } from '@/constants/colors';
+import { Font } from '@/constants/fonts';
+import { haptic, type HapticKind } from '@/lib/haptics';
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
+type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'white';
 
 type PrimaryButtonProps = {
   label: string;
@@ -11,7 +14,11 @@ type PrimaryButtonProps = {
   disabled?: boolean;
   size?: 'md' | 'lg';
   style?: StyleProp<ViewStyle>;
+  haptic?: HapticKind;
+  accessibilityHint?: string;
 };
+
+const PRESS_SPRING = { damping: 18, stiffness: 420, mass: 0.6 };
 
 export function PrimaryButton({
   label,
@@ -20,62 +27,99 @@ export function PrimaryButton({
   disabled = false,
   size = 'lg',
   style,
+  haptic: hapticKind = 'light',
+  accessibilityHint,
 }: PrimaryButtonProps) {
+  const scale = useSharedValue(1);
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.get() }],
+  }));
+
+  const handlePress = () => {
+    haptic(hapticKind);
+    onPress();
+  };
+
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled }}
       disabled={disabled}
-      onPress={onPress}
+      onPress={handlePress}
+      onPressIn={() => scale.set(withSpring(0.965, PRESS_SPRING))}
+      onPressOut={() => scale.set(withSpring(1, PRESS_SPRING))}
       hitSlop={6}
-      style={({ pressed }) => [
-        styles.base,
-        size === 'lg' ? styles.lg : styles.md,
-        variantStyles[variant],
-        pressed && pressedStyles[variant],
-        disabled && styles.disabled,
-        style,
-      ]}>
-      <Text
-        style={[
-          styles.label,
-          size === 'lg' ? styles.labelLg : styles.labelMd,
-          { color: variant === 'primary' ? Palette.onAccent : Palette.text },
-          variant === 'ghost' && { color: Palette.textMuted },
-        ]}>
-        {label}
-      </Text>
+      style={style}>
+      {({ pressed }) => (
+        <Animated.View
+          style={[
+            styles.base,
+            size === 'lg' ? styles.lg : styles.md,
+            variantStyles[variant],
+            pressed && pressedStyles[variant],
+            disabled && (variant === 'ghost' ? styles.disabledGhost : styles.disabled),
+            animatedStyle,
+          ]}>
+          <Text
+            style={[
+              styles.label,
+              size === 'lg' ? styles.labelLg : styles.labelMd,
+              { color: labelColor(variant) },
+              disabled && variant !== 'ghost' && styles.labelDisabled,
+            ]}>
+            {label}
+          </Text>
+        </Animated.View>
+      )}
     </Pressable>
   );
+}
+
+function labelColor(variant: Variant): string {
+  if (variant === 'white') return '#000000';
+  if (variant === 'ghost') return Palette.textMuted;
+  return Palette.text;
 }
 
 const styles = StyleSheet.create({
   base: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: Radius.md,
+    borderRadius: Radius.xs,
     borderWidth: 1.5,
     paddingHorizontal: Space.lg,
   },
   lg: {
-    minHeight: 64,
+    minHeight: 66,
   },
   md: {
-    minHeight: 50,
+    minHeight: 52,
   },
   label: {
-    fontWeight: '800',
-    letterSpacing: 0.5,
+    fontFamily: Font.display,
+    letterSpacing: 2,
     textAlign: 'center',
+    includeFontPadding: false,
   },
   labelLg: {
-    fontSize: 19,
+    fontSize: 28,
+    lineHeight: 32,
   },
   labelMd: {
-    fontSize: 16,
+    fontSize: 22,
+    lineHeight: 26,
   },
   disabled: {
-    opacity: 0.4,
+    backgroundColor: Palette.surfaceRaised,
+    borderColor: Palette.border,
+  },
+  disabledGhost: {
+    opacity: 0.35,
+  },
+  labelDisabled: {
+    color: Palette.textFaint,
   },
 });
 
@@ -96,6 +140,10 @@ const variantStyles = StyleSheet.create({
     backgroundColor: Palette.danger,
     borderColor: Palette.danger,
   },
+  white: {
+    backgroundColor: Palette.mrWhite,
+    borderColor: Palette.mrWhite,
+  },
 });
 
 const pressedStyles = StyleSheet.create({
@@ -104,12 +152,16 @@ const pressedStyles = StyleSheet.create({
     borderColor: Palette.accentPressed,
   },
   secondary: {
-    backgroundColor: 'rgba(227, 6, 19, 0.12)',
+    backgroundColor: Palette.accentSoft,
   },
   ghost: {
     opacity: 0.6,
   },
   danger: {
     opacity: 0.85,
+  },
+  white: {
+    backgroundColor: '#CFCFCF',
+    borderColor: '#CFCFCF',
   },
 });

@@ -1,11 +1,12 @@
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { NoGame } from '@/components/game/NoGame';
+import { PassPhone } from '@/components/game/PassPhone';
 import { PrimaryButton } from '@/components/game/PrimaryButton';
 import { Screen } from '@/components/game/Screen';
-import { Palette, Radius, Space, Type } from '@/constants/colors';
+import { SecretReveal } from '@/components/game/SecretReveal';
 import { useGame } from '@/context/game-context';
 import { useBlockBack } from '@/hooks/use-block-back';
 
@@ -42,63 +43,43 @@ export default function AssignScreen() {
   if (!revealed) {
     return (
       <Screen
-        style={styles.center}
-        footer={<PrimaryButton label="Voir mon mot" onPress={() => setRevealed(true)} />}>
-        <Text style={styles.progress}>
-          Joueur {index + 1} / {total}
-        </Text>
-        <View style={styles.passBlock}>
-          <Text style={styles.passLabel}>Passe le téléphone à</Text>
-          <Text style={styles.passName} numberOfLines={2} adjustsFontSizeToFit>
-            {player.name}
-          </Text>
-          <Text style={styles.passHint}>
-            Les autres, détournez les yeux.{'\n'}Seul {player.name} doit voir l’écran.
-          </Text>
-        </View>
+        footer={
+          <PrimaryButton
+            label="Voir mon mot"
+            haptic="heavy"
+            accessibilityHint={`Réservé à ${player.name}`}
+            onPress={() => setRevealed(true)}
+          />
+        }>
+        <PassPhone
+          key={player.id}
+          step="Distribution des mots"
+          current={index}
+          total={total}
+          name={player.name}
+          hint={`Les autres, détournez les yeux. Seul ${player.name} doit voir l’écran.`}
+        />
       </Screen>
     );
   }
 
   return (
     <Screen
+      tone={isMrWhite ? 'white' : 'neutral'}
       style={styles.center}
       footer={
         <PrimaryButton
-          label={isMrWhite ? 'J’ai compris' : 'J’ai mémorisé'}
+          label={isMrWhite ? 'J’ai compris · Cacher' : 'J’ai mémorisé · Cacher'}
+          variant={isMrWhite ? 'white' : 'primary'}
+          haptic="medium"
           onPress={memorized}
         />
       }>
-      {isMrWhite ? (
-        <>
-          <Text style={styles.progress}>{player.name}</Text>
-          <View style={[styles.wordCard, styles.whiteCard]}>
-            <Text style={styles.whiteRole}>Mister White</Text>
-            <Text style={styles.whiteBlank}>???</Text>
-          </View>
-          <Text style={styles.wordHint}>
-            Tu n’as pas de mot. Écoute les autres, bluffe, et essaie de
-            survivre… ou de trouver le mot des Civils si tu es éliminé.
-          </Text>
-        </>
-      ) : (
-        <>
-          <Text style={styles.progress}>{player.name}, ton mot est</Text>
-          <View style={styles.wordCard}>
-            <Text
-              style={styles.word}
-              numberOfLines={2}
-              adjustsFontSizeToFit
-              minimumFontScale={0.5}
-              accessibilityRole="header">
-              {player.word}
-            </Text>
-          </View>
-          <Text style={styles.wordHint}>
-            Mémorise-le, puis cache l’écran avant de passer le téléphone.
-          </Text>
-        </>
-      )}
+      <SecretReveal
+        key={player.id}
+        playerName={player.name}
+        word={isMrWhite ? null : player.word}
+      />
     </Screen>
   );
 }
@@ -106,80 +87,5 @@ export default function AssignScreen() {
 const styles = StyleSheet.create({
   center: {
     justifyContent: 'center',
-    alignItems: 'center',
-    gap: Space.xl,
-  },
-  progress: {
-    color: Palette.textMuted,
-    fontSize: Type.small,
-    fontWeight: '700',
-    letterSpacing: 1.5,
-    textTransform: 'uppercase',
-    textAlign: 'center',
-  },
-  passBlock: {
-    alignItems: 'center',
-    gap: Space.md,
-    alignSelf: 'stretch',
-  },
-  passLabel: {
-    color: Palette.textMuted,
-    fontSize: Type.heading,
-    fontWeight: '600',
-  },
-  passName: {
-    color: Palette.text,
-    fontSize: Type.display,
-    fontWeight: '900',
-    textAlign: 'center',
-  },
-  passHint: {
-    color: Palette.textFaint,
-    fontSize: Type.body - 1,
-    lineHeight: 23,
-    textAlign: 'center',
-    marginTop: Space.md,
-  },
-  wordCard: {
-    alignSelf: 'stretch',
-    minHeight: 220,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: Space.lg,
-    paddingVertical: Space.xl,
-    backgroundColor: Palette.surface,
-    borderRadius: Radius.lg,
-    borderWidth: 2,
-    borderColor: Palette.accent,
-  },
-  word: {
-    color: Palette.accent,
-    fontSize: Type.secret,
-    fontWeight: '900',
-    textAlign: 'center',
-    letterSpacing: 1,
-  },
-  wordHint: {
-    color: Palette.textMuted,
-    fontSize: Type.body - 1,
-    lineHeight: 23,
-    textAlign: 'center',
-  },
-  whiteCard: {
-    borderColor: Palette.mrWhite,
-    gap: Space.md,
-  },
-  whiteRole: {
-    color: Palette.mrWhite,
-    fontSize: Type.small,
-    fontWeight: '800',
-    letterSpacing: 3,
-    textTransform: 'uppercase',
-  },
-  whiteBlank: {
-    color: Palette.text,
-    fontSize: Type.secret,
-    fontWeight: '900',
-    letterSpacing: 8,
   },
 });

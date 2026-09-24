@@ -1,11 +1,16 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 
+import { Kicker } from '@/components/game/Kicker';
 import { PrimaryButton } from '@/components/game/PrimaryButton';
 import { Screen } from '@/components/game/Screen';
+import { ScreenHeader } from '@/components/game/ScreenHeader';
 import { Palette, Radius, Space, Type } from '@/constants/colors';
+import { Font } from '@/constants/fonts';
 import { useGame } from '@/context/game-context';
+import { haptic } from '@/lib/haptics';
 
 const MIN_PLAYERS = 3;
 const MAX_PLAYERS = 10;
@@ -29,6 +34,7 @@ export default function SetupScreen() {
   const [undercoverOverride, setUndercoverOverride] = useState<number | null>(null);
   const [mrWhiteOverride, setMrWhiteOverride] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [focusedKey, setFocusedKey] = useState<string | null>(null);
 
   const count = entries.length;
   const maxSpecial = Math.max(1, count - 1);
@@ -69,11 +75,13 @@ export default function SetupScreen() {
 
   const addPlayer = () => {
     if (count >= MAX_PLAYERS) return;
+    haptic('light');
     setEntries((prev) => [...prev, makeEntry()]);
   };
 
   const removePlayer = (key: string) => {
     if (count <= MIN_PLAYERS) return;
+    haptic('light');
     setEntries((prev) => prev.filter((e) => e.key !== key));
   };
 
@@ -83,11 +91,17 @@ export default function SetupScreen() {
       startGame(trimmed, undercoverCount, mrWhiteCount);
       router.push('/assign/0');
     } catch (e) {
+      haptic('warning');
       setError(e instanceof Error ? e.message : 'Impossible de lancer la partie.');
     }
   };
 
   const civilians = count - undercoverCount - mrWhiteCount;
+  const composition = [
+    ...Array<'civilian'>(civilians).fill('civilian'),
+    ...Array<'undercover'>(undercoverCount).fill('undercover'),
+    ...Array<'mrWhite'>(mrWhiteCount).fill('mrWhite'),
+  ];
 
   return (
     <Screen
@@ -95,134 +109,207 @@ export default function SetupScreen() {
       footer={
         <>
           {error || validation ? (
-            <Text style={[styles.validation, error ? styles.error : null]}>
+            <Text
+              style={[styles.validation, error ? styles.error : null]}
+              accessibilityLiveRegion="polite">
               {error ?? validation}
             </Text>
           ) : null}
-          <PrimaryButton label="Démarrer la partie" onPress={start} disabled={Boolean(validation)} />
+          <PrimaryButton
+            label="Lancer la mission"
+            haptic="heavy"
+            onPress={start}
+            disabled={Boolean(validation)}
+          />
         </>
       }>
-      <View style={styles.header}>
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
-          hitSlop={12}>
-          <Text style={styles.back}>‹ Accueil</Text>
-        </Pressable>
-        <Text style={styles.title} accessibilityRole="header">
-          Les joueurs
-        </Text>
-        <Text style={styles.subtitle}>
-          {count} joueurs · de {MIN_PLAYERS} à {MAX_PLAYERS}
-        </Text>
-      </View>
+      <ScreenHeader
+        backLabel="Accueil"
+        kicker="Briefing · Agents"
+        title="Les joueurs"
+        subtitle={`${count} agents enregistrés · de ${MIN_PLAYERS} à ${MAX_PLAYERS}`}
+      />
 
       <View style={styles.list}>
-        {entries.map((entry, index) => (
-          <View key={entry.key} style={styles.row}>
-            <Text style={styles.index}>{index + 1}</Text>
-            <TextInput
-              value={entry.name}
-              onChangeText={(text) => updateName(entry.key, text)}
-              placeholder={`Joueur ${index + 1}`}
-              placeholderTextColor={Palette.textFaint}
-              style={styles.input}
-              maxLength={18}
-              autoCapitalize="words"
-              autoCorrect={false}
-              returnKeyType="next"
-              selectionColor={Palette.accent}
-            />
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`Retirer ${entry.name || `le joueur ${index + 1}`}`}
-              onPress={() => removePlayer(entry.key)}
-              disabled={count <= MIN_PLAYERS}
-              hitSlop={6}
-              style={({ pressed }) => [
-                styles.remove,
-                pressed && styles.pressed,
-                count <= MIN_PLAYERS && styles.disabled,
-              ]}>
-              <Text style={styles.removeLabel}>×</Text>
-            </Pressable>
-          </View>
-        ))}
+        {entries.map((entry, index) => {
+          const focused = focusedKey === entry.key;
+          return (
+            <Animated.View
+              key={entry.key}
+              entering={FadeIn.duration(220)}
+              exiting={FadeOut.duration(160)}
+              layout={LinearTransition.duration(220)}
+              style={[styles.row, focused && styles.rowFocused]}>
+              <Text style={[styles.index, focused && styles.indexFocused]}>
+                {String(index + 1).padStart(2, '0')}
+              </Text>
+              <TextInput
+                value={entry.name}
+                onChangeText={(text) => updateName(entry.key, text)}
+                onFocus={() => setFocusedKey(entry.key)}
+                onBlur={() => setFocusedKey((k) => (k === entry.key ? null : k))}
+                placeholder={`Joueur ${index + 1}`}
+                placeholderTextColor={Palette.textFaint}
+                style={styles.input}
+                maxLength={18}
+                autoCapitalize="words"
+                autoCorrect={false}
+                returnKeyType="next"
+                selectionColor={Palette.accent}
+                accessibilityLabel={`Nom du joueur ${index + 1}`}
+              />
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Retirer ${entry.name || `le joueur ${index + 1}`}`}
+                onPress={() => removePlayer(entry.key)}
+                disabled={count <= MIN_PLAYERS}
+                hitSlop={6}
+                style={({ pressed }) => [
+                  styles.remove,
+                  pressed && styles.pressed,
+                  count <= MIN_PLAYERS && styles.disabled,
+                ]}>
+                <Text style={styles.removeLabel}>×</Text>
+              </Pressable>
+            </Animated.View>
+          );
+        })}
 
         {count < MAX_PLAYERS ? (
-          <Pressable
-            accessibilityRole="button"
-            onPress={addPlayer}
-            style={({ pressed }) => [styles.add, pressed && styles.pressed]}>
-            <Text style={styles.addLabel}>+ Ajouter un joueur</Text>
-          </Pressable>
+          <Animated.View layout={LinearTransition.duration(220)}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Ajouter un joueur"
+              onPress={addPlayer}
+              style={({ pressed }) => [styles.add, pressed && styles.addPressed]}>
+              <Text style={styles.addPlus}>+</Text>
+              <Text style={styles.addLabel}>Ajouter un joueur</Text>
+            </Pressable>
+          </Animated.View>
         ) : null}
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Undercover</Text>
-        <View style={styles.counter}>
-          <CounterButton
-            label="−"
-            accessibilityLabel="Moins d’undercover"
-            disabled={undercoverCount <= (mrWhiteCount > 0 ? 0 : 1)}
-            onPress={() => setUndercoverOverride(undercoverCount - 1)}
-          />
-          <View style={styles.counterValue}>
-            <Text style={styles.counterNumber}>{undercoverCount}</Text>
-            <Text style={styles.counterCaption}>
-              + {civilians} civil{civilians > 1 ? 's' : ''}
-            </Text>
-          </View>
-          <CounterButton
-            label="+"
-            accessibilityLabel="Plus d’undercover"
-            disabled={undercoverCount + mrWhiteCount >= count - 1}
-            onPress={() => setUndercoverOverride(undercoverCount + 1)}
-          />
+        <View style={styles.sectionHead}>
+          <Kicker color={Palette.textMuted}>Composition</Kicker>
+          {(undercoverOverride !== null || mrWhiteOverride !== null) &&
+          (undercoverCount !== suggestedUc || mrWhiteCount !== suggestedMw) ? (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => {
+                haptic('selection');
+                setUndercoverOverride(null);
+                setMrWhiteOverride(null);
+              }}
+              hitSlop={10}>
+              <Text style={styles.suggest}>Valeurs conseillées</Text>
+            </Pressable>
+          ) : null}
         </View>
-      </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Mister White</Text>
-        <Text style={styles.sectionHint}>
-          Pas de mot — doit bluffer. Disponible dès 5 joueurs.
-        </Text>
-        <View style={styles.counter}>
-          <CounterButton
-            label="−"
-            accessibilityLabel="Moins de Mister White"
-            disabled={mrWhiteCount <= 0}
-            onPress={() => setMrWhiteOverride(mrWhiteCount - 1)}
-          />
-          <View style={styles.counterValue}>
-            <Text style={[styles.counterNumber, { color: Palette.mrWhite }]}>
-              {mrWhiteCount}
-            </Text>
-            <Text style={styles.counterCaption}>
-              {mrWhiteCount === 0 ? 'désactivé' : 'actif'}
-            </Text>
-          </View>
-          <CounterButton
-            label="+"
-            accessibilityLabel="Plus de Mister White"
-            disabled={count < 5 || mrWhiteCount >= 1 || undercoverCount + 1 >= count}
-            onPress={() => setMrWhiteOverride(1)}
-          />
+        <View
+          style={styles.distribution}
+          accessible
+          accessibilityLabel={`${civilians} civils, ${undercoverCount} undercover, ${mrWhiteCount} Mister White`}>
+          {composition.map((role, i) => (
+            <View key={i} style={[styles.segment, segmentStyles[role]]} />
+          ))}
         </View>
-        {(undercoverOverride !== null || mrWhiteOverride !== null) &&
-        (undercoverCount !== suggestedUc || mrWhiteCount !== suggestedMw) ? (
-          <Pressable
-            onPress={() => {
-              setUndercoverOverride(null);
-              setMrWhiteOverride(null);
-            }}
-            hitSlop={8}>
-            <Text style={styles.suggest}>Revenir aux valeurs conseillées</Text>
-          </Pressable>
-        ) : null}
+        <View style={styles.legend}>
+          <Legend color={Palette.textFaint} label={`${civilians} civil${civilians > 1 ? 's' : ''}`} />
+          <Legend color={Palette.accent} label={`${undercoverCount} undercover`} />
+          <Legend color={Palette.mrWhite} label={`${mrWhiteCount} Mr White`} />
+        </View>
+
+        <RoleStepper
+          title="Undercover"
+          hint="Un mot proche, mais différent."
+          value={undercoverCount}
+          valueColor={Palette.accent}
+          canDecrement={undercoverCount > (mrWhiteCount > 0 ? 0 : 1)}
+          canIncrement={undercoverCount + mrWhiteCount < count - 1}
+          onDecrement={() => setUndercoverOverride(undercoverCount - 1)}
+          onIncrement={() => setUndercoverOverride(undercoverCount + 1)}
+          name="undercover"
+          lessLabel="Moins d’undercover"
+          moreLabel="Plus d’undercover"
+        />
+        <RoleStepper
+          title="Mister White"
+          hint={count < 5 ? 'Aucun mot · disponible dès 5 joueurs.' : 'Aucun mot · doit bluffer.'}
+          value={mrWhiteCount}
+          valueColor={Palette.mrWhite}
+          canDecrement={mrWhiteCount > 0}
+          canIncrement={!(count < 5 || mrWhiteCount >= 1 || undercoverCount + 1 >= count)}
+          onDecrement={() => setMrWhiteOverride(mrWhiteCount - 1)}
+          onIncrement={() => setMrWhiteOverride(1)}
+          name="Mister White"
+          lessLabel="Moins de Mister White"
+          moreLabel="Plus de Mister White"
+        />
       </View>
     </Screen>
+  );
+}
+
+function Legend({ color, label }: { color: string; label: string }) {
+  return (
+    <View style={styles.legendItem}>
+      <View style={[styles.legendDot, { backgroundColor: color }]} />
+      <Text style={styles.legendLabel}>{label}</Text>
+    </View>
+  );
+}
+
+function RoleStepper({
+  title,
+  hint,
+  value,
+  valueColor,
+  canDecrement,
+  canIncrement,
+  onDecrement,
+  onIncrement,
+  name,
+  lessLabel,
+  moreLabel,
+}: {
+  lessLabel: string;
+  moreLabel: string;
+  title: string;
+  hint: string;
+  value: number;
+  valueColor: string;
+  canDecrement: boolean;
+  canIncrement: boolean;
+  onDecrement: () => void;
+  onIncrement: () => void;
+  name: string;
+}) {
+  return (
+    <View style={styles.stepper}>
+      <View style={styles.stepperText}>
+        <Text style={styles.stepperTitle}>{title}</Text>
+        <Text style={styles.stepperHint}>{hint}</Text>
+      </View>
+      <CounterButton
+        label="−"
+        accessibilityLabel={lessLabel}
+        disabled={!canDecrement}
+        onPress={onDecrement}
+      />
+      <Text
+        style={[styles.stepperValue, { color: valueColor }]}
+        accessibilityLabel={`${value} ${name}`}>
+        {value}
+      </Text>
+      <CounterButton
+        label="+"
+        accessibilityLabel={moreLabel}
+        disabled={!canIncrement}
+        onPress={onIncrement}
+      />
+    </View>
   );
 }
 
@@ -241,159 +328,214 @@ function CounterButton({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      onPress={onPress}
+      accessibilityState={{ disabled }}
+      onPress={() => {
+        haptic('selection');
+        onPress();
+      }}
       disabled={disabled}
-      style={({ pressed }) => [styles.counterBtn, pressed && styles.pressed, disabled && styles.disabled]}>
+      hitSlop={4}
+      style={({ pressed }) => [
+        styles.counterBtn,
+        pressed && styles.counterBtnPressed,
+        disabled && styles.disabled,
+      ]}>
       <Text style={styles.counterBtnLabel}>{label}</Text>
     </Pressable>
   );
 }
 
+const segmentStyles = StyleSheet.create({
+  civilian: { backgroundColor: Palette.textFaint },
+  undercover: { backgroundColor: Palette.accent },
+  mrWhite: { backgroundColor: Palette.mrWhite },
+});
+
 const styles = StyleSheet.create({
-  header: {
-    gap: Space.xs,
-    marginBottom: Space.lg,
-  },
-  back: {
-    color: Palette.textMuted,
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: Space.md,
-  },
-  title: {
-    color: Palette.text,
-    fontSize: Type.title + 4,
-    fontWeight: '900',
-  },
-  subtitle: {
-    color: Palette.textMuted,
-    fontSize: Type.small + 1,
-    fontWeight: '600',
-  },
   list: {
-    gap: Space.sm,
+    gap: Space.xs,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Space.sm,
+    gap: Space.md,
+    minHeight: 60,
+    paddingLeft: Space.xs,
+    borderBottomWidth: 1,
+    borderColor: Palette.border,
+  },
+  rowFocused: {
+    borderColor: Palette.accent,
   },
   index: {
-    width: 22,
+    width: 26,
+    color: Palette.textFaint,
+    fontFamily: Font.monoBold,
+    fontSize: Type.small,
+    letterSpacing: 1,
+  },
+  indexFocused: {
     color: Palette.accent,
-    fontSize: 16,
-    fontWeight: '800',
-    textAlign: 'right',
-    fontVariant: ['tabular-nums'],
   },
   input: {
     flex: 1,
-    minHeight: 54,
-    paddingHorizontal: Space.md,
-    backgroundColor: Palette.surface,
-    borderRadius: Radius.md,
-    borderWidth: 1.5,
-    borderColor: Palette.border,
+    minHeight: 58,
     color: Palette.text,
-    fontSize: Type.body + 1,
-    fontWeight: '600',
+    fontFamily: Font.bodySemi,
+    fontSize: Type.body + 3,
   },
   remove: {
     width: 48,
-    height: 54,
+    height: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: Radius.md,
   },
   removeLabel: {
-    color: Palette.danger,
+    color: Palette.textMuted,
+    fontFamily: Font.body,
     fontSize: 28,
-    fontWeight: '500',
+    lineHeight: 32,
   },
   add: {
-    marginTop: Space.xs,
-    marginLeft: 30,
-    minHeight: 54,
-    borderRadius: Radius.md,
-    borderWidth: 1.5,
-    borderStyle: 'dashed',
-    borderColor: Palette.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  addLabel: {
-    color: Palette.accent,
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  section: {
-    marginTop: Space.xl,
-    gap: Space.md,
-  },
-  sectionTitle: {
-    color: Palette.textMuted,
-    fontSize: Type.label,
-    fontWeight: '800',
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-  },
-  sectionHint: {
-    color: Palette.textFaint,
-    fontSize: Type.small,
-    marginTop: -Space.sm,
-  },
-  counter: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Palette.surface,
-    borderRadius: Radius.lg,
-    borderWidth: 1.5,
-    borderColor: Palette.border,
-    padding: Space.sm,
+    justifyContent: 'center',
+    gap: Space.sm,
+    marginTop: Space.md,
+    minHeight: 56,
+    borderRadius: Radius.xs,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: Palette.accentLine,
+  },
+  addPressed: {
+    backgroundColor: Palette.accentSoft,
+  },
+  addPlus: {
+    color: Palette.accent,
+    fontFamily: Font.display,
+    fontSize: 28,
+    lineHeight: 30,
+    includeFontPadding: false,
+  },
+  addLabel: {
+    color: Palette.text,
+    fontFamily: Font.display,
+    fontSize: 22,
+    lineHeight: 26,
+    letterSpacing: 1.5,
+    includeFontPadding: false,
+  },
+  section: {
+    marginTop: Space.xxl,
+    gap: Space.md,
+  },
+  sectionHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  suggest: {
+    color: Palette.accent,
+    fontFamily: Font.monoBold,
+    fontSize: Type.label,
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
+  },
+  distribution: {
+    flexDirection: 'row',
+    gap: 3,
+    height: 10,
+  },
+  segment: {
+    flex: 1,
+  },
+  legend: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Space.md,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  legendDot: {
+    width: 8,
+    height: 8,
+  },
+  legendLabel: {
+    color: Palette.textMuted,
+    fontFamily: Font.mono,
+    fontSize: Type.label + 1,
+    letterSpacing: 0.5,
+  },
+  stepper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Space.sm,
+    paddingVertical: Space.md,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderColor: Palette.hairline,
+  },
+  stepperText: {
+    flex: 1,
+    gap: 2,
+  },
+  stepperTitle: {
+    color: Palette.text,
+    fontFamily: Font.display,
+    fontSize: 28,
+    lineHeight: 30,
+    letterSpacing: 1,
+    includeFontPadding: false,
+  },
+  stepperHint: {
+    color: Palette.textFaint,
+    fontFamily: Font.body,
+    fontSize: Type.small,
+  },
+  stepperValue: {
+    width: 40,
+    fontFamily: Font.display,
+    fontSize: 44,
+    lineHeight: 46,
+    textAlign: 'center',
+    includeFontPadding: false,
   },
   counterBtn: {
-    width: 56,
-    height: 56,
-    borderRadius: Radius.md,
-    backgroundColor: Palette.surfaceRaised,
+    width: 52,
+    height: 52,
+    borderRadius: Radius.xs,
+    borderWidth: 1,
+    borderColor: Palette.border,
+    backgroundColor: Palette.surface,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  counterBtnPressed: {
+    borderColor: Palette.accent,
+    backgroundColor: Palette.accentSoft,
   },
   counterBtnLabel: {
     color: Palette.text,
-    fontSize: 28,
-    fontWeight: '600',
-  },
-  counterValue: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  counterNumber: {
-    color: Palette.accent,
-    fontSize: 36,
-    fontWeight: '900',
-  },
-  counterCaption: {
-    color: Palette.textMuted,
-    fontSize: Type.small,
-    fontWeight: '600',
-  },
-  suggest: {
-    color: Palette.textMuted,
-    fontSize: Type.small,
-    textDecorationLine: 'underline',
+    fontFamily: Font.bodyBold,
+    fontSize: 26,
+    lineHeight: 30,
   },
   validation: {
     color: Palette.textMuted,
-    fontSize: Type.small + 1,
-    fontWeight: '700',
+    fontFamily: Font.monoBold,
+    fontSize: Type.label + 1,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
     textAlign: 'center',
   },
   error: {
     color: Palette.danger,
   },
   pressed: {
-    opacity: 0.65,
+    opacity: 0.6,
   },
   disabled: {
     opacity: 0.3,

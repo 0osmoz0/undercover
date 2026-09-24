@@ -1,16 +1,20 @@
 /** Palette alignée sur le logo ESIEE Undercover : noir · blanc · rouge. */
 export const Palette = {
   bgTop: '#000000',
-  bgBottom: '#121212',
-  surface: '#161616',
-  surfaceRaised: '#222222',
-  border: '#333333',
+  bgMid: '#070707',
+  bgBottom: '#141414',
+  surface: '#111111',
+  surfaceRaised: '#1C1C1C',
+  border: '#2A2A2A',
+  hairline: 'rgba(255, 255, 255, 0.08)',
   accent: '#E30613',
   accentPressed: '#B80510',
+  accentSoft: 'rgba(227, 6, 19, 0.14)',
+  accentLine: 'rgba(227, 6, 19, 0.45)',
   onAccent: '#FFFFFF',
   text: '#FFFFFF',
   textMuted: '#A8A8A8',
-  textFaint: '#666666',
+  textFaint: '#6E6E6E',
   danger: '#E30613',
   success: '#C8C8C8',
   mrWhite: '#F0F0F0',
@@ -26,17 +30,19 @@ export const Space = {
 } as const;
 
 export const Radius = {
+  xs: 3,
   sm: 6,
   md: 10,
   lg: 14,
 } as const;
 
 export const Type = {
-  display: 44,
-  title: 32,
-  secret: 52,
-  heading: 22,
+  hero: 88,
+  display: 64,
+  title: 44,
+  secret: 76,
+  heading: 26,
   body: 17,
   small: 14,
-  label: 12,
+  label: 11,
 } as const;
