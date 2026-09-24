@@ -27,6 +27,8 @@ export type GamePhase =
 export type GameState = {
   players: Player[];
   wordPair: WordPair;
+  themeId: string;
+  themeTitle: string;
   phase: GamePhase;
   assignIndex: number;
   votes: Record<string, string>;
@@ -92,7 +94,8 @@ export function normalizeGuess(value: string): string {
     .trim()
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[\u2018\u2019\u02bc`]/g, "'");
 }
 
 export function createPlayers(
@@ -150,6 +153,7 @@ export function createGame(
   undercoverCount: number,
   pairs: WordPair[],
   mrWhiteCount = 0,
+  theme?: { id: string; title: string },
 ): GameState {
   const wordPair = pickWordPair(pairs);
   const players = createPlayers(
@@ -162,6 +166,8 @@ export function createGame(
   return {
     players,
     wordPair,
+    themeId: theme?.id ?? 'custom',
+    themeTitle: theme?.title ?? 'Personnalisé',
     phase: 'assign',
     assignIndex: 0,
     votes: {},

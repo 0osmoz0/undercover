@@ -81,10 +81,14 @@ describe('createGame', () => {
       ['Alice', 'Bob', 'Claire', 'Diane'],
       1,
       pairs,
+      0,
+      { id: 'classique', title: 'Classique' },
     );
     expect(game.phase).toBe('assign');
     expect(game.players).toHaveLength(4);
     expect(game.winner).toBeNull();
+    expect(game.themeId).toBe('classique');
+    expect(game.themeTitle).toBe('Classique');
   });
 });
 

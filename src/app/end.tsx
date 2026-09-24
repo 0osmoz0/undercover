@@ -63,7 +63,7 @@ export default function EndScreen() {
         : 'Les Undercover\ngagnent';
 
   const replay = () => {
-    router.dismissTo('/setup');
+    router.dismissTo('/themes');
     resetGame();
   };
 
@@ -84,7 +84,7 @@ export default function EndScreen() {
       }>
       <View style={styles.banner}>
         <Kicker color={Palette.textMuted}>
-          {`Mission terminée · ${game.round} manche${game.round > 1 ? 's' : ''}`}
+          {`${game.themeTitle} · ${game.round} manche${game.round > 1 ? 's' : ''}`}
         </Kicker>
         <VictoryTitle title={title} color={accent} />
         <Animated.Text entering={FadeIn.duration(500).delay(700)} style={styles.winners}>
